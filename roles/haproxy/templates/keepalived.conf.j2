@@ -1,0 +1,59 @@
+ ! Configuration File for keepalived
+global_defs {
+    enable_script_security
+    script_user root
+}
+vrrp_script chk_service {           # Requires keepalived-1.1.13
+        script /etc/keepalived/{{ _keepalived.check_script_name }}.sh
+        interval 2                      # check every 2 seconds
+}
+vrrp_instance VI_1 {
+    state {{ keepalived_role }}
+    interface {{ _keepalived.shared_iface }}
+    virtual_router_id {{ _keepalived.router_id }}
+    {% if keepalived_role.lower() == "master" %}
+    priority {{ _keepalived.priority }}
+    {% else %}
+    priority {{ _keepalived.backup_priority }}
+    {% endif %}
+    advert_int 1
+    {% if _keepalived.unicast_mode | default(False) %}
+    unicast_src_ip {{ _keepalived.unicast_source }}
+    unicast_peer {
+      {% for peer in _keepalived.unicast_peers %}
+        {{ peer }}
+      {% endfor %}
+    }
+    {% endif %}
+    authentication {
+        auth_type PASS
+        auth_pass {{ _keepalived.auth_pass }}
+    }
+    virtual_ipaddress {
+    {% if _keepalived.shared_ip | default(False) %}
+      {{ _keepalived.shared_ip }} dev {{ _keepalived.shared_iface }}
+    {% else %}
+      {% for ip in _keepalived.shared_ips | default([]) %}
+          {{ ip }} dev {{ _keepalived.shared_iface }}
+      {% endfor %}
+    {% endif %}
+    }
+    track_script {
+        chk_service
+    }
+    {% if _keepalived.notification_email | default(False) %}
+    notify /etc/keepalived/email_notify.sh
+    {% endif %}
+    {% if _keepalived.notification_script | default(False) %}
+    notify {{ _keepalived.notification_script }}
+    {% endif %}
+    {% if _keepalived.notification_command_backup | default(False) %}
+    notify_backup "{{ _keepalived.notification_command_backup }}"
+    {% endif %}
+    {% if _keepalived.notification_command_master | default(False) %}
+    notify_master "{{ _keepalived.notification_command_master }}"
+    {% endif %}
+    {% if _keepalived.notification_command_fault | default(False) %}
+    notify_fault "{{ _keepalived.notification_command_fault }}"
+    {% endif %}
+}

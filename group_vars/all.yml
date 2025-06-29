@@ -41,7 +41,7 @@ _minio:
     rk9: [ "rk9-freeipa", "rk9-node01", "rk9-node02", "rk9-node03", "rk9-node04", "rk9-node05" ]
     ubt24: [ "rk9-freeipa", "ubt24-node01", "ubt24-node02", "ubt24-node03", "ubt24-node04", "ubt24-node05" ]
   debug_opt: ""  # --debug
-  access_key: admin
+  access_key: minioadmin
   secret_key: changeme
 
 

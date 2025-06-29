@@ -1,5 +1,5 @@
 ---
-- name: Check OS ( Single MinIO )
+- name: Check OS ( Distributed MinIO )
   fail: msg="Not a Red Hat based system!"
   when: ansible_facts['distribution'] not in ['RedHat', 'CentOS', 'Rocky', 'Debian', 'Ubuntu']
 

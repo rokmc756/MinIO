@@ -1,0 +1,21 @@
+---
+- name: Restart MinIO Service
+  systemd: name={{ minio_service }} state=restarted daemon_reload=yes
+  listen: Restart MinIO
+
+
+- name: Wait Until MinIO Started
+  wait_for:
+    host: "{{ ansible_default_ipv4.address | default('localhost') }}"
+    port: "{{ minio_port }}"
+    delay: 10
+  listen: Restart MinIO
+
+
+- name: Restart NGINX
+  service: name=nginx state=restarted
+
+
+- name: Systemd Daemon Reload
+  systemd: daemon_reload=yes
+

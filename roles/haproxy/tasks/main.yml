@@ -1,0 +1,58 @@
+---
+- name: Check OS ( HAProxy & Keepalived )
+  fail: msg="Not a Red Hat based system!"
+  when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS' or ansible_os_family != 'Rocky'
+
+
+- name: Set Facts for Package Name and List and Network Range
+  import_tasks: set-facts.yml
+  tags: install, uninstall, setup, remove, verify, create, delete, start, stop, enable, disable
+
+
+- name: Stop and Diable Firewalld and SELinux
+  import_tasks: disable-security.yml
+  tags: disable, stop, install, setup
+  when: (( sec is defined and sec == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Install HAProxy
+  import_tasks: install-haproxy.yml
+  tags: setup, install
+  when: (( lb is defined and lb == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Install Keepalived
+  import_tasks: install-keepalived.yml
+  tags: setup, install
+  when: (( ha is defined and ha == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Uninstall Keepalived
+  import_tasks: uninstall-keepalived.yml
+  tags: remove, delete, uninstall
+  when: (( ha is defined and ha == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Uninstall HAProxy
+  import_tasks: uninstall-haproxy.yml
+  tags: remove, delete, uninstall
+  when: (( lb is defined and lb == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Start and Enable Firewalld and SELinux
+  import_tasks: enable-security.yml
+  tags: enable, start, uninstall, remove
+  when: (( sec is defined and sec == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Upgrade HAProxy
+  import_tasks: upgrade-haproxy.yml
+  tags: upgrade
+  when: (( ha is defined and ha == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Upgrade Keepalived
+  import_tasks: upgrade-haproxy.yml
+  tags: upgrade
+  when: (( ha is defined and lb == true ) ha ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+

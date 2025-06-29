@@ -1,0 +1,56 @@
+---
+- name: Install Keepalived
+  package:
+    name: keepalived
+    state: latest
+  notify: Restart Keepalived
+
+
+- block:
+
+   - name: Install Postfix to send Notifications
+     package:
+       name: ['postfix', 'mailutils']
+       state: present
+   - name: Start and enable postfix
+     service:
+       name: postfix
+       state: started
+       enabled: yes
+
+  when: _keepalived.notifications_email | default(False)
+
+
+- name: Install Check Script
+  template:
+    src: "templates/{{ _keepalived.check_script_name }}.sh.j2"
+    dest: "/etc/keepalived/{{ _keepalived.check_script_name }}.sh"
+    mode: 0755
+    owner: root
+    group: root
+  notify: Restart Keepalived
+
+
+- name: Install Email Notification Script
+  template:
+    src: "templates/email_notify.sh.j2"
+    dest: "/etc/keepalived/email_notify.sh"
+    mode: 0755
+    owner: root
+    group: root
+  notify: Restart Keepalived
+
+
+- name: Keepalived configuration
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  notify: Restart Keepalived
+
+
+- name: Start Keepalived
+  systemd:
+    name: keepalived
+    state: started
+    enabled: yes
+
