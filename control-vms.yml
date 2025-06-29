@@ -1,0 +1,15 @@
+---
+
+- hosts: localhost
+
+  tasks:
+    - name: "{{ power_title }} Virtual Machines Without the Answer Param"
+      vmware_guest_powerstate:
+        hostname: "{{ _vmware.esxi_hostname }}"
+        username: "{{ _vmware.esxi_username }}"
+        password: "{{ _vmware.esxi_password }}"
+        validate_certs: false
+        name: "{{ item }}"
+        state: "{{ power_state }}"
+      loop: "{{ _minio.vms.rk9 }}"
+

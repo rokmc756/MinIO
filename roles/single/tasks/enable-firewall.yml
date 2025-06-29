@@ -1,0 +1,59 @@
+---
+- name: Install Firewalld Package
+  yum:
+    name: 'firewalld'
+    state: present
+
+
+- name: Enable Firewalld
+  systemd:
+    name: 'firewalld'
+    state: started
+    enabled: yes
+  ignore_errors: true
+
+
+- name: Open Firewall
+  firewalld:
+    port: '{{item}}/tcp'
+    permanent: true
+    state: enabled
+    zone: public
+    immediate: yes
+  register: open_firewall
+  ignore_errors: true
+  with_items:
+    - '{{minio_port}}'
+    - '{{minio_static_port}}'
+    - '80'
+
+
+#- name: Disabled Firewalld
+#  systemd:
+#    name: 'firewalld'
+#    state: stopped
+#    enabled: no
+#  ignore_errors: true
+#  when: disable_firewall is defined and disable_firewall
+
+
+- name: Whitelist of IP Addresses
+  firewalld:
+    zone: public
+    rich_rule: "rule family=ipv4 source address={{ hostvars[item][_netdev]['ipv4']['address'] }} accept"
+    permanent: true
+    state: enabled
+  with_items:
+    - "{{ groups['minio'] }}"
+
+
+- name: Bounce firewalld
+  service: name=firewalld state=restarted
+
+
+#- name: Stop and Disable Firewalld
+#  systemd:
+#    name: firewalld
+#    state: stopped
+#    enabled: no
+
