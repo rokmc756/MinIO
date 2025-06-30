@@ -28,10 +28,10 @@ minio_port: 9000
 minio_static_port: 9001
 minio_listen_address: 0.0.0.0
 minio_volumes:
-  - { dev: "/dev/vdb1", dir: "/data01", fs: "xfs" }
-  - { dev: "/dev/vdc1", dir: "/data02", fs: "xfs" }
-  - { dev: "/dev/vdd1", dir: "/data03", fs: "xfs" }
-  - { dev: "/dev/vde1", dir: "/data04", fs: "xfs" }
+  - { dev: "/dev/nvme0n1", dir: "/data01", fs: "xfs" }
+  - { dev: "/dev/nvme0n2", dir: "/data02", fs: "xfs" }
+  - { dev: "/dev/nvme0n3", dir: "/data03", fs: "xfs" }
+  - { dev: "/dev/nvme0n4", dir: "/data04", fs: "xfs" }
 minio_client_install: yes
 minio_client_url: https://dl.minio.io/client/mc/release/linux-amd64/mc
 minio_client_archive_url: https://dl.minio.io/client/mc/release/linux-amd64/archive

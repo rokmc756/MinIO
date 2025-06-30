@@ -1,0 +1,42 @@
+[all:vars]
+ssh_key_filename="id_rsa"
+remote_machine_username="jomoon"
+remote_machine_password="changeme"
+
+
+[rgw]
+rk9-node03 ansible_ssh_host=192.168.1.173
+
+
+[primary_rgw]
+rk9-node03 ansible_ssh_host=192.168.1.173
+
+
+[secondary_rgw]
+rk9-node06 ansible_ssh_host=192.168.0.176
+
+
+[control]
+rk9-node01 ansible_ssh_host=192.168.1.171
+
+
+[append]
+rk9-node02 ansible_ssh_host=192.168.1.172
+rk9-node03 ansible_ssh_host=192.168.1.173
+
+
+[mon]
+rk9-node01 ansible_ssh_host=192.168.1.171
+rk9-node02 ansible_ssh_host=192.168.1.172
+rk9-node03 ansible_ssh_host=192.168.1.173
+
+
+[osd]
+rk9-node04 ansible_ssh_host=192.168.1.174
+rk9-node05 ansible_ssh_host=192.168.1.175
+rk9-node06 ansible_ssh_host=192.168.1.176
+
+
+[clients]
+rk9-node06 ansible_ssh_host=192.168.1.176
+

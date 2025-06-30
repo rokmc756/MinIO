@@ -6,7 +6,7 @@
 
 - name: Set Facts for Network and Packages Informations
   import_tasks: set-minio-facts.yml
-  tags: install, uninstall, create, delete, setup, remove, upload, download, enable, disable, mount, umount
+  tags: testfact, install, uninstall, create, delete, setup, remove, upload, download, enable, disable, mount, umount
 
 
 - name: Configure Firewalld for MinIO
@@ -19,6 +19,12 @@
   import_tasks: create-data-device.yml
   tags: create, mount, install
   when: (( dev is defined and dev == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+
+
+- name: Download Certgen
+  import_tasks: download-certgen.yml
+  tags: download, install
+  when: ( certgen is defined and certgen == true ) or ( cluster_all is defined and cluster_all == true )
 
 
 - name: Enable SSL

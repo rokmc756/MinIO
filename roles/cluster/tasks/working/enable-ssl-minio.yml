@@ -18,7 +18,7 @@
   shell: |
     openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout {{ _ssl.ssl_dir }}/private.key -out {{ _ssl.ssl_dir }}/public.crt \
     -subj "/CN={{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }}" \
-    -addext "subjectAltName=DNS:{{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }},DNS:192.168.2.101,DNS:192.168.2.199,IP:0.0.0.0,IP:127.0.0.1,IP:{{ hostvars[inventory_hostname][_netdev]['ipv4']['address'] }}"
+    -addext "subjectAltName=DNS:{{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }},DNS:192.168.1.101,DNS:192.168.1.199,IP:0.0.0.0,IP:127.0.0.1,IP:{{ hostvars[inventory_hostname][_netdev]['ipv4']['address'] }}"
 
 
 - name: Copy File with Owner and Permissions

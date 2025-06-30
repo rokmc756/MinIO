@@ -1,20 +1,14 @@
 upstream minio_s3 {
 
    least_conn;
-   server rk9-node01.jtest.pivotal.io:9000;
-   server rk9-node02.jtest.pivotal.io:9000;
-   server rk9-node03.jtest.pivotal.io:9000;
-   server rk9-node04.jtest.pivotal.io:9000;
+   server {{ inventory_hostname }}.{{ _minio.domain }}:9000;
 
 }
 
 upstream minio_console {
 
    least_conn;
-   server rk9-node01.jtest.pivotal.io:9001;
-   server rk9-node02.jtest.pivotal.io:9001;
-   server rk9-node03.jtest.pivotal.io:9001;
-   server rk9-node04.jtest.pivotal.io:9001;
+   server {{ inventory_hostname }}.{{ _minio.domain }}:9001;
 
 }
 

@@ -3,13 +3,13 @@
 - name: Get interface name from prefix of IP Addresses provided for Weka Nodes
   set_fact:
     netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr0 ) | map(attribute='device') | first }}"
-    netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr2 ) | map(attribute='device') | first }}"
+    netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr1 ) | map(attribute='device') | first }}"
 
 
 - name: Get IP Address from provided network device name
   set_fact:
     ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
-    ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev2].ipv4.address }}"
+    ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
 
 
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
@@ -27,8 +27,8 @@
 
 - name: Set Default Network Device and Address
   set_fact:
-    _netdev: "{{ 'ansible_'~ netdev2 }}"
-    _ipaddr: "{{ ipaddr2 }}"
+    _netdev: "{{ 'ansible_'~ netdev1 }}"
+    _ipaddr: "{{ ipaddr1 }}"
 
 
 # RHEL

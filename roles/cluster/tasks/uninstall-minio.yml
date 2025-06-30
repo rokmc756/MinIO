@@ -8,7 +8,10 @@
 
 
 - name: Uninstall NGINX Package
-  yum: name={{ nginx_package }} state=absent
+  yum: name={{ item }} state=absent
+  with_items:
+    - "{{ nginx_package }}"
+    - "nginx-core"
 
 
 - name: Remove NGINX Repository ( and clean up left-over metadata )

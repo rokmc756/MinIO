@@ -41,3 +41,4 @@
     owner: "{{ minio_user }}"
     group: "{{ minio_group }}"
   with_items: "{{ minio_volumes }}"
+

@@ -8,8 +8,9 @@ AssertFileIsExecutable={{ minio_bin }}
 [Service]
 WorkingDirectory={{ minio_user_home }}
 
-# User={{ minio_user }}
-User=root
+# User=root
+User={{ minio_user }}
+Group={{ minio_group }}
 
 EnvironmentFile=-/etc/default/{{ minio_service }}
 ExecStartPre=/bin/bash -c "[ -n \"${MINIO_VOLUMES}\" ] || echo \"Variable MINIO_VOLUMES not set in /etc/default/minio\""

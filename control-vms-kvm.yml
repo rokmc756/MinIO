@@ -1,4 +1,3 @@
----
 - hosts: lab
   tasks:
     - name: "{{ power_title }} Virtual Machines"
@@ -7,5 +6,5 @@
         virsh {{ power_state }} {{ item }}
       register: power_vms
       ignore_errors: true
-      loop: "{{ _minio.vms.rk9 }}"
+      loop: "{{ k8s.vms.rk9 }}"
 

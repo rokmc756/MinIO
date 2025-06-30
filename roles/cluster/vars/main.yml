@@ -1,1 +1,10 @@
+---
+_certgen:
+  download_url: https://github.com/minio/certgen/releases/download
+  major_version: 1
+  minor_version: 3
+  patch_version: 0
+  os: linux
+  arch: amd64
+  # /v{{ certgen_version }}/certgen-{{ _certgen.os }}-{{ _certgen.arch }}
 

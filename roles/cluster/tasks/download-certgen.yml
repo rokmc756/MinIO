@@ -1,0 +1,31 @@
+---
+- name: Check if the Certgen File Already Exists
+  stat: path={{ _minio.base_path }}/{{ certgen_file_name }}
+  register: check_certgen_file
+
+
+- name: Check if the Certgen Binary Already Exists
+  stat: path=/usr/local/bin/certgen
+  register: check_certgen_bin
+
+
+- name: Download Certgen File If Copy Fails
+  shell: wget {{ _certgen.download_url }}/v{{ certgen_version }}/{{ certgen_file_name }} -P {{ _minio.base_path }}
+  args:
+    executable: /bin/bash
+    chdir: "{{ _minio.base_path }}/"
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+  when: check_certgen_file.stat.exists != True
+
+
+- name: MV Certgen File
+  shell: |
+    mv {{ _minio.base_path }}/certgen-linux-amd64 /usr/local/bin/certgen
+    chmod 755 /usr/local/bin/certgen
+  args:
+    executable: /bin/bash
+    chdir: "{{ _minio.base_path }}"
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+

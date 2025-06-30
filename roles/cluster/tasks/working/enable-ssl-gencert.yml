@@ -17,7 +17,7 @@
 
 - name: Generate TLS Keys
   shell: |
-    certgen -host "localhost,{{ all_fqdn }}"
+    certgen -host "localhost,rk9-node01.jtest.pivotal.io,rk9-node02.jtest.pivotal.io,rk9-node03.jtest.pivotal.io,rk9-node04.jtest.pivotal.io"
   register: gen_tls_keys
   args:
     executable: /bin/bash
@@ -29,8 +29,7 @@
 
 - name: Copy SSL Configuration with Rsync
   shell: |
-    rsync -a --rsh='/usr/bin/sshpass -p changeme ssh -o StrictHostKeyChecking=no' \
-    root@{{ groups['control'][0] }}.{{ _minio.domain }}:{{ _ssl.ssl_dir }}/* {{ _ssl.ssl_dir }}
+    rsync -a --rsh='/usr/bin/sshpass -p changeme ssh -o StrictHostKeyChecking=no' root@rk9-node01.jtest.pivotal.io:{{ _ssl.ssl_dir }}/* {{ _ssl.ssl_dir }}
   when: inventory_hostname not in groups['control']
 
 

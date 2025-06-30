@@ -21,7 +21,7 @@ _keepalived:
   router_id: "52"
   shared_iface: "{{ netdev2 }}"
   shared_ips:
-    - "192.168.2.189/24"
+    - "192.168.1.179/24"
   check_process: "haproxy"
   priority: "100"
   backup_priority: "50"

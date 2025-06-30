@@ -3,29 +3,31 @@ COMMON="yes"
 ANSIBLE_HOST_PASS="changeme"
 ANSIBLE_TARGET_PASS="changeme"
 
-
-# Define Boot CMD
-VMWARE_BOOT_CMD="power-on"
-VMWARE_SHUTDOWN_CMD="shutdown-guest"
-VMWARE_ROLE_CONFIG="control-vms-vmware.yml"
+# Define Variables for KVM
 KVM_BOOT_CMD="start"
 KVM_SHUTDOWN_CMD="shutdown"
 KVM_ROLE_CONFIG="control-vms-kvm.yml"
-KVM_HOST_CONFIG="ansible-hosts-fedora"
+KVM_HOST_CONFIG="ansible-hosts-kvm"
+
+# Define Variables for VMware
+VMWARE_BOOT_CMD="powered-on"
+VMWARE_SHUTDOWN_CMD="shutdown-guest"
+VMWARE_ROLE_CONFIG="control-vms-vmware.yml"
 VMWARE_HOST_CONFIG="ansible-hosts-vmware"
 
-BOOT_CMD=${KVM_BOOT_CMD}
-SHUTDOWN_CMD=${KVM_SHUTDOWN_CMD}
-ROLE_CONFIG=${KVM_ROLE_CONFIG}
-ANSIBLE_HOST_CONFIG=${KVM_HOST_CONFIG}
+
+BOOT_CMD=${VMWARE_BOOT_CMD}
+SHUTDOWN_CMD=${VMWARE_SHUTDOWN_CMD}
+ROLE_CONFIG=${VMWARE_ROLE_CONFIG}
+ANSIBLE_HOST_CONFIG=${VMWARE_HOST_CONFIG}
 
 
 # Control VMs in KVM For Power On or Off
 boot:
-	ansible-playbook -i ${ANSIBLE_HOST_CONFIG} --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} ${ROLE_CONFIG} --extra-vars "power_state=${BOOT_CMD} power_title=Power-On VMs"
+	@ansible-playbook -i ${ANSIBLE_HOST_CONFIG} --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} ${ROLE_CONFIG} --extra-vars "power_state=${BOOT_CMD} power_title=Power-On VMs"
 
 shutdown:
-	ansible-playbook -i ${ANSIBLE_HOST_CONFIG} --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} ${ROLE_CONFIG} --extra-vars "power_state=${SHUTDOWN_CMD} power_title=Shutdown VMs"
+	@ansible-playbook -i ${ANSIBLE_HOST_CONFIG} --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} ${ROLE_CONFIG} --extra-vars "power_state=${SHUTDOWN_CMD} power_title=Shutdown VMs"
 
 
 # For All Roles
