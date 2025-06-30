@@ -55,10 +55,12 @@ _ssl:
   ssl_days: 3660
   ssl_country: "KR"
   ssl_state: "Seoul"
-  ssl_location: "GangNam"
-  ssl_organization: "Pivotal"
+  ssl_location: "Guro"
+  ssl_organization: "VMware"
+  ssl_organization_unit: "Tanzu"
   ssl_common_name: "jtest.pivotal.io"
   ssl_email: "jomoon@pivotal.io"
+
 
 
 _common:

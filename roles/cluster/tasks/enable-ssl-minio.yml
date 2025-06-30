@@ -1,0 +1,36 @@
+---
+- name: Check if SSL Directory Alread Exists
+  stat: path={{ _ssl.ssl_dir }}
+  register: check_ssl_dir_exists
+
+
+- name: Create SSL Directory
+  file: path={{ item }} state=directory owner={{ minio_user }} group={{ minio_group }}
+  changed_when: False
+  register: create_ssl_dir
+  with_items:
+    - "{{ _ssl.ssl_dir }}"
+    - "{{ _minio.base_path }}/.minio/certs"
+    - "{{ _minio.base_path }}/.minio/certs/CAs"
+
+
+- name: Create SSL Key
+  shell: |
+    openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout {{ _ssl.ssl_dir }}/private.key -out {{ _ssl.ssl_dir }}/public.crt \
+    -subj "/CN={{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }}" \
+    -addext "subjectAltName=DNS:{{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }},DNS:192.168.2.101,DNS:192.168.2.199,IP:0.0.0.0,IP:127.0.0.1,IP:{{ hostvars[inventory_hostname][_netdev]['ipv4']['address'] }}"
+
+
+- name: Copy File with Owner and Permissions
+  copy:
+    src: "{{ item.org }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0644
+    remote_src: yes
+  with_items:
+    - { org: "{{ _ssl.ssl_dir }}/public.crt", dest: "{{ _minio.base_path }}/.minio/certs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt", dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
+

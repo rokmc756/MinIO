@@ -1,0 +1,63 @@
+---
+- name: Install Chrony Package
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "chrony"
+
+
+- name: Copy Chrony Config File
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  register: copy_chrony_conf
+  with_items:
+    - "chrony.conf"
+- debug: msg={{ copy_chrony_conf }}
+
+
+- name: Restart Chrony Daemon
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  register: restart_service
+  until: restart_service is succeeded
+  retries: 10
+  delay: 10
+  with_items:
+    - chronyd
+- debug: msg={{ restart_service }}
+  when: print_debug == true
+
+
+- name: Enable NTP Service
+  shell: |
+    firewall-cmd --add-service=ntp
+    firewall-cmd --runtime-to-permanent
+  register: enable_ntp_service
+- debug: msg={{ enable_ntp_service }}
+  when: print_debug == true
+
+
+- name: Set Hostname
+  shell: |
+    hostnamectl set-hostname {{ inventory_hostname }}
+    chronyc sources
+  register: set_hostname
+- debug: msg={{ set_hostname }}
+  when: print_debug == true
+
+
+- name: Verify Clock Sources
+  shell: |
+    chronyc sources
+  register: verify_clock_sources
+- debug: msg={{ verify_clock_sources }}
+  when: print_debug == true
+

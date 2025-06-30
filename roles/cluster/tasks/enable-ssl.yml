@@ -1,12 +1,15 @@
 ---
-- name: Check if SSL Directory Alread Exists
-  stat: path={{ _ssl.ssl_dir }}
-  register: check_ssl_dir_exists
-
+# https://min.io/docs/minio/linux/operations/network-encryption.html
+# https://github.com/minio/minio/issues/20159
+# https://medium.com/@martin.hodges/adding-tls-connectivity-to-minio-6763615b9af3
 
 - name: Create SSL Directory
-  file: path={{ item }} state=directory owner={{ minio_user }} group={{ minio_group }}
-  changed_when: False
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
   register: create_ssl_dir
   with_items:
     - "{{ _ssl.ssl_dir }}"
@@ -14,11 +17,75 @@
     - "{{ _minio.base_path }}/.minio/certs/CAs"
 
 
-- name: Create SSL Key
+- name: Generate a CA Certificate Private Key
+  shell: openssl genrsa -out {{ _ssl.ssl_dir }}/ca.key 4096
+  register: gen_ca_cert_priv_key
+
+
+- name: Generate the CA Certificate
   shell: |
-    openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout {{ _ssl.ssl_dir }}/private.key -out {{ _ssl.ssl_dir }}/public.crt \
-    -subj "/CN={{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }}" \
-    -addext "subjectAltName=DNS:{{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }},DNS:192.168.2.101,DNS:192.168.2.199,IP:0.0.0.0,IP:127.0.0.1,IP:{{ hostvars[inventory_hostname][_netdev]['ipv4']['address'] }}"
+    openssl req -x509 -new -nodes -sha512 -days 3650 \
+    -key {{ _ssl.ssl_dir }}/ca.key -out {{ _ssl.ssl_dir }}/ca.crt \
+    -subj "/C={{ _ssl.ssl_country }}/ST={{ _ssl.ssl_state }}/L={{ _ssl.ssl_location }}/O={{ _ssl.ssl_organization }}/OU={{ _ssl.ssl_organization_unit }}/CN={{ _ssl.ssl_common_name }}/emailAddress={{ _ssl.ssl_email }}"
+  register: gen_ca_cert
+
+
+- name: Generate a Private Key
+  shell: openssl genrsa -out {{ _ssl.ssl_dir }}/private.key 4096
+  register: gen_priv_key
+
+
+- name: Generate a Certificate Signing Request (CSR)
+  shell: |
+    openssl req -sha512 -new \
+    -key {{ _ssl.ssl_dir }}/private.key -out {{ _ssl.ssl_dir }}/private.csr \
+    -subj "/C={{ _ssl.ssl_country }}/ST={{ _ssl.ssl_state }}/L={{ _ssl.ssl_location }}/O={{ _ssl.ssl_organization }}/OU={{ _ssl.ssl_organization_unit }}/CN={{ _ssl.ssl_common_name }}/emailAddress={{ _ssl.ssl_email }}"
+  register: gen_cert_sign_req
+
+  #  -key {{ _ssl.ssl_dir }}/server.key \
+  #  -out {{ _ssl.ssl_dir }}/server.csr
+
+
+- name: Copy an x509 v3 Extension File
+  template: src=v3.ext.j2 dest={{ _ssl.ssl_dir }}/v3.ext owner={{ minio_user }} group={{ minio_user }} mode=644 force=yes
+  register: copy_x509_v3_ext
+
+
+#- name: Replace the CRS and CRT File Names
+#  shell: |
+#    openssl x509 -req -sha512 -days 3650 -extfile {{ _ssl.ssl_dir }}/v3.ext \
+#    -CA {{ _ssl.ssl_dir }}/ca.crt -CAkey {{ _ssl.ssl_dir }}/ca.key -CAcreateserial \
+#    -in {{ _ssl.ssl_dir }}/private.csr \
+#    -out {{ _ssl.ssl_dir }}/public.crt
+#  register: replace_csr_crt
+  #  -in {{ _ssl.ssl_dir }}/server.csr \
+  #  -out {{ _ssl.ssl_dir }}/server.crt
+
+
+# openssl x509 -req -sha512 -days 3650 -extfile {{ _ssl.ssl_dir }}/v3.ext \
+- name: Replace the CRS and CRT File Names
+  shell: |
+    openssl x509 -req -sha512 -days 3650 -extfile <(echo "subjectAltName=DNS:{{ inventory_hostname }}.{{ _minio.domain }}") \
+    -CA {{ _ssl.ssl_dir }}/ca.crt -CAkey {{ _ssl.ssl_dir }}/ca.key -CAcreateserial \
+    -in {{ _ssl.ssl_dir }}/private.csr \
+    -out {{ _ssl.ssl_dir }}/public.crt
+  register: replace_csr_crt
+
+
+- name: Change Permission of SSL Key Files to Login Postgres Database via SSL
+  file:
+    path: "{{ _ssl.ssl_dir }}/{{ item }}"
+    state: file
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: "0600"
+  with_items:
+    - "private.key"
+    - "private.csr"
+    - "public.crt"
+    - "ca.key"
+    - "ca.crt"
+    - "v3.ext"
 
 
 - name: Copy File with Owner and Permissions
@@ -33,4 +100,8 @@
     - { org: "{{ _ssl.ssl_dir }}/public.crt", dest: "{{ _minio.base_path }}/.minio/certs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/private.key" }
     - { org: "{{ _ssl.ssl_dir }}/public.crt", dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/CAs/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/ca.crt", dest: "{{ _minio.base_path }}/.minio/certs/CAs/ca.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/ca.key", dest: "{{ _minio.base_path }}/.minio/certs/CAs/ca.key" }
+    - { org: "{{ _ssl.ssl_dir }}/v3.ext", dest: "{{ _minio.base_path }}/.minio/certs/CAs/v3.ext" }
 

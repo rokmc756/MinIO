@@ -1,6 +1,7 @@
-# Local export path.
-MINIO_VOLUMES="https://rk9-node0{1...4}.jtest.pivotal.io:9000/data0{1...4}"
+# Local Export path.
+# MINIO_VOLUMES="https://rk9-node0{1...4}.jtest.pivotal.io:9000/data0{1...4}"
 # MINIO_VOLUMES="https://rk9-node0{1...4}.jtest.pivotal.io/data0{1...4}"
+MINIO_VOLUMES="https://rk9-node0{1...4}.jtest.pivotal.io:9000/data0{1...4}"
 
 # Use if you want to run Minio on a custom port.
 MINIO_OPTS=" --console-address {{ minio_listen_address }}:{{ minio_static_port }}"
@@ -10,5 +11,8 @@ MINIO_ROOT_USER={{ minio_root_user }}
 MINIO_ROOT_PASSWORD={{ minio_root_password }}
 
 # MINIO_CERT_DIR="{{ _minio.base_path }}/certs"
-MINIO_SERVER_URL="https://{{ inventory_hostname }}.{{ _minio.domain }}:9000"
+
+# MINIO_CERT_DIR="{{ _minio.base_path }}/certs"
+# MINIO_SERVER_URL="https://{{ inventory_hostname }}.{{ _minio.domain }}:9000"
+
 
