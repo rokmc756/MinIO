@@ -35,38 +35,28 @@ listen  admin-stats
 	stats auth {{ _haproxy.stats_user }}:{{ _haproxy.stats_pass }}
 
 
-frontend minio_service
-    bind *:9000
-    mode tcp
-    option tcplog
-    default_backend minio_servce_backend
+frontend minio-api
+	bind *:{{ _haproxy.frontend_port }}
+	# mode tcp
+	default_backend minio-backend
 
 
-backend minio_servce_backend
-    option httpchk GET /healthz
-    http-check expect status 200
-    mode tcp
-    option ssl-hello-chk
-    balance     leastconn
+backend minio-backend
+    balance roundrobin
+    option httpchk GET /minio/health/live
 {% for h in groups['workers'] %}
-        server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9000 check
+    server {{ h }} {{ h }}.{{ _minio.domain }}:9000 check ssl verify none
 {% endfor %}
 
 
-frontend minio_console
+frontend minio-console
     bind *:9001
-    mode tcp
-    option tcplog
-    default_backend minio_console_backend
+    default_backend console-backend
 
 
-backend minio_console_backend
-    option httpchk GET /healthz
-    http-check expect status 200
-    mode tcp
-    option ssl-hello-chk
-    balance     leastconn
+backend console-backend
+    balance roundrobin
 {% for h in groups['workers'] %}
-        server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9001 check
+    server {{ h }} {{ h }}.{{ _minio.domain }}:9001 check ssl verify none
 {% endfor %}
 

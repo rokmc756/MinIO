@@ -33,8 +33,8 @@ vrrp_instance VI_1 {
     {% if _keepalived.shared_ip | default(False) %}
       {{ _keepalived.shared_ip }} dev {{ _keepalived.shared_iface }}
     {% else %}
-      {% for ip in _keepalived.shared_ips | default([]) %}
-          {{ ip }} dev {{ _keepalived.shared_iface }}
+      {% for ip in _keepalived.shared_ips | map(attribute='ipaddr') | default([]) %}
+      {{ ip }} dev {{ _keepalived.shared_iface }}
       {% endfor %}
     {% endif %}
     }

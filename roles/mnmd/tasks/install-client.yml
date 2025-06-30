@@ -1,4 +1,5 @@
 ---
+
 - import_tasks: install-client-pkgs.yml
 
 
@@ -17,7 +18,6 @@
   command: "/usr/local/bin/mcli --insecure alias set minio https://{{ ansible_host | default('localhost') }}:{{ minio_port }} {{ _minio.access_key }} {{ _minio.secret_key }}"
   args:
     creates: "{{ minio_client_config }}"
-  # command: "{{ minio_client_bin }} --insecure alias set minio https://{{ ansible_host | default('localhost') }}:{{ minio_port }} {{ _minio.access_key }} {{ _minio.secret_key }}"
 
 
 - block:

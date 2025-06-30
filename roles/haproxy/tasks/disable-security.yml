@@ -23,7 +23,7 @@
   ignore_errors: true
   notify:
     - Restart System
-    - Waiting for Server to Come Back After Reboot
+    - Waiting for Server to Come Back After Restart
 
 
 - name: Check if SELinux Have Been Disabled in Configurtion File

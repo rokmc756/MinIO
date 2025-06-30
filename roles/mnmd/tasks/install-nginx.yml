@@ -24,7 +24,7 @@
     - { fn: "nginx.conf.j2", dest: "/etc/nginx/nginx.conf" }
     - { fn: "minio.conf.j2", dest: "/etc/nginx/conf.d/minio.conf" }
   notify: Restart NGINX
-  # - { fn: "default.conf.j2", dest: "/etc/nginx/conf.d/default.conf" }
+# - { fn: "default.conf.j2", dest: "/etc/nginx/conf.d/default.conf" }
 
 
 - name: Show NGINX Address

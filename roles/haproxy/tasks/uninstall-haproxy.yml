@@ -2,11 +2,11 @@
 # https://blog.dbi-services.com/using-ansible-to-bring-up-a-three-node-patroni-cluster-in-minutes/
 # Nneed to set this so that haproxy can not be started
 
-- name: Set SELinux Context for HAProxy
-  become: true
-  shell: setsebool -P haproxy_connect_any=0
-  ignore_errors: yes
-  when: inventory_hostname in groups['lb']
+#- name: Set SELinux Context for HAProxy
+#  become: true
+#  shell: setsebool -P haproxy_connect_any=0
+#  ignore_errors: yes
+#  when: inventory_hostname in groups['lb']
 
 
 - name: Disable the Systemd HAProxy Service
