@@ -8,8 +8,9 @@
   when: inventory_hostname in groups['lb']
 
 
-#- name: Set SELinux Disabled
-#  shell: setenforce 0
+#- name: Set SELinux Context
+#  shell: setsebool -P haproxy_connect_any=1
+#  ignore_errors: yes
 #  when: inventory_hostname in groups['lb']
 
 
@@ -35,11 +36,4 @@
     enabled: yes
     state: restarted
   when: inventory_hostname in groups['lb']
-
-
-# Need to set this so haproxy can be started
-#- name: Set SELinux Context
-#  shell: setsebool -P haproxy_connect_any=1
-#  ignore_errors: yes
-#  when: inventory_hostname in groups['lb']
 
