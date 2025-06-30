@@ -6,59 +6,59 @@
 
 - name: Set Facts for Network and Packages Informations
   import_tasks: set-minio-facts.yml
-  tags: testfact, install, uninstall, create, delete, setup, remove, upload, download, enable, disable, mount, umount
+  tags: install, uninstall, create, delete, setup, remove, upload, download, enable, disable, mount, umount
 
 
 - name: Configure Firewalld for MinIO
   import_tasks: disable-firewall.yml
   tags: disable, install
-  when: (( firewall is defined and firewall == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( firewall is defined and firewall == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Create Data Devices
   import_tasks: create-data-device.yml
   tags: create, mount, install
-  when: (( dev is defined and dev == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( dev is defined and dev == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Download Certgen
   import_tasks: download-certgen.yml
   tags: download, install
-  when: ( certgen is defined and certgen == true ) or ( cluster_all is defined and cluster_all == true )
+  when: ( certgen is defined and certgen == true ) or ( mnmd_all is defined and mnmd_all == true )
 
 
 - name: Enable SSL
   import_tasks: enable-ssl.yml
   tags: enable, install
-  when: (( ssl is defined and ssl == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( ssl is defined and ssl == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Install MinIO
   import_tasks: install-minio.yml
   tags: setup, install
-  when: (( minio is defined and minio == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( minio is defined and minio == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Install NGINX
   import_tasks: install-nginx.yml
   tags: setup, install
-  when: (( nginx is defined and nginx == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( nginx is defined and nginx == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Uninstall MinIO
   import_tasks: uninstall-minio.yml
   tags: remove, uninstall
-  when: (( minio is defined and minio == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( minio is defined and minio == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Delete Data Devices
   import_tasks: delete-data-device.yml
   tags: delete, umount, uninstall
-  when: (( dev is defined and dev == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( dev is defined and dev == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Upgrade MinIO
   import_tasks: upgrade-minio.yml
   tags: upgrade
-  when: (( minio is defined and minio == true ) or ( cluster_all is defined and cluster_all == true )) and inventory_hostname in groups['workers']
+  when: (( minio is defined and minio == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 

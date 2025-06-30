@@ -33,9 +33,9 @@ shutdown:
 # For All Roles
 %:
 	@if [ "${*}" = "snmd" ]; then\
-		ln -sf ansible-hosts-rk9-single ansible-hosts;\
+		ln -sf ansible-hosts-rk9-snmd ansible-hosts;\
 	elif [ "${*}" = "mnmd" ]; then\
-		ln -sf ansible-hosts-rk9-cluster ansible-hosts;\
+		ln -sf ansible-hosts-rk9-mnmd ansible-hosts;\
 	elif [ "${*}" = "haproxy" ]; then\
 		ln -sf ansible-hosts-rk9-haproxy ansible-hosts;\
 	elif [ "${*}" = "hosts" ]; then\
