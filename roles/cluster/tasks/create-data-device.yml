@@ -1,0 +1,45 @@
+---
+- name: Create Export Directory
+  file:
+    path: "{{ item.dir | urlsplit('path') }}"
+    state: directory
+    mode: 0755
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+  when: (item.dir | urlsplit('hostname')) in ([ansible_hostname, ansible_host, ansible_fqdn, none] + ansible_all_ipv4_addresses)
+  with_items: "{{ minio_volumes }}"
+
+
+- name: Check Existing Config
+  stat: path={{ minio_config }}
+  register: config_file
+
+
+- name: Format Devices with XFS
+  filesystem:
+    fstype: "{{ item.fs }}"
+    dev: "{{ item.dev }}"
+    force: true
+    state: present
+  with_items: "{{ minio_volumes }}"
+
+
+- name: Mount a Filesystem
+  mount:
+    src: "{{ item.dev }}"
+    path: "{{ item.dir }}"
+    fstype: xfs
+    opts: defaults
+    state: mounted
+  with_items: "{{ minio_volumes }}"
+
+
+- name: Change Directory Permissions
+  file:
+    path: "{{ item.dir }}"
+    mode: "0755"
+    recurse: yes
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+  with_items: "{{ minio_volumes }}"
+

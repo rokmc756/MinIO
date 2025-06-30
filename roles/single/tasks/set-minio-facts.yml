@@ -29,41 +29,15 @@
     _ipaddr: "{{ ipaddr2 }}"
 
 
-#- name: Define Facts for List of Dependecies Packages to Install or Uninstall
-#  set_fact:
-#    rh_install_pkgs: "{{ rh_common_dep_pkgs ~ ',' ~ rh7_dep_pkgs ~ ',' ~ rh7_python_pkgs }}"
-#    rh_uninstall_pkgs: "{{ remove_rh_common_dep_pkgs ~ ',' ~ rh7_dep_pkgs ~ ',' ~ rh7_python_pkgs }}"
-#    yum_python_version: "/usr/bin/python2"
-#  when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and ansible_distribution_major_version|int <= 7
-#
-#
-#- name: Define Facts for List of Dependencies Packages to Install or Uninstall
-#  set_fact:
-#    rh_install_pkgs: "{{ rh_common_dep_pkgs ~ ',' ~ rh8_dep_pkgs ~ ',' ~ rh8_python_pkgs }}"
-#    rh_uninstall_pkgs: "{{ remove_rh_common_dep_pkgs ~ ',' ~ rh8_dep_pkgs ~ ',' ~ rh8_python_pkgs }}"
-#    yum_python_version: "/usr/bin/python3"
-#  when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and ansible_distribution_major_version|int == 8
-#
-#
-#- name: Define Facts for List of Dependencies Packages to Install or Uninstall
-#  set_fact:
-#    rh_install_pkgs: "{{ rh_common_dep_pkgs ~ ',' ~ rh9_dep_pkgs ~ ',' ~ rh9_python_pkgs }}"
-#    rh_uninstall_pkgs: "{{ remove_rh_common_dep_pkgs ~ ',' ~ rh9_dep_pkgs ~ ',' ~ rh9_python_pkgs }}"
-#    yum_python_version: "/usr/bin/python3"
-#  when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and ansible_distribution_major_version|int >= 9
-
-
-#- name: Define Package Names for VMware Postgres/Patroni/ETCD
-#  set_fact:
-#    pgsql_pkg_name: "{{ common.pgsql_pkg_name }}-{{ pgsql.major_version }}.{{ pgsql.minor_version }}-{{ pgsql.patch_version }}.{{ pgsql.os_version }}"
-#    patroni_pkg_name: "{{ common.pgsql_pkg_name }}-patroni-{{ _patroni.major_version }}.{{ _patroni.minor_version }}.{{ _patroni.patch_version }}"
-#    etcd_pkg_name: "etcd-{{ _etcd.major_version }}.{{ _etcd.minor_version }}.{{ _etcd.patch_version }}"
-#    etcd_main_version: "{{ _etcd.major_version }}.{{ _etcd.minor_version }}.{{ _etcd.patch_version }}"
-
-
 - name: Define Fact of Network Address
   set_fact:
     minio_network_range: "{{ hostvars[inventory_hostname][_netdev]['ipv4']['network'] }}/{{ ( hostvars[inventory_hostname][_netdev]['ipv4']['address'] + '/' + hostvars[inventory_hostname][_netdev]['ipv4']['netmask'] ) | ansible.utils.ipaddr('prefix') }}"
+
+
+- name: Define Fact of Minio Package
+  set_fact:
+    minio_pkg_name: "minio-{{ _minio.release_date }}.x86_64.rpm"
+    mcli_pkg_name: "mcli-{{ _mc.release_date }}.x86_64.rpm"
 
 
 - name: Define Fact of Specific IP Address Range

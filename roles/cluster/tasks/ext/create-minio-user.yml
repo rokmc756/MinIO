@@ -1,0 +1,7 @@
+---
+- name: Create MinIO User
+  user:
+    name: "{{ minio_user }}"
+    uid: "{{ minio_user_id | d(omit) }}"
+  when: minio_user != 'root'
+

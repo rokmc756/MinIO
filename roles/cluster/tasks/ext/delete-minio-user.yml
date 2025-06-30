@@ -1,0 +1,7 @@
+---
+- name: Remove MinIo User
+  user:
+    name: "{{ minio_user }}"
+    state: absent
+    remove: yes
+

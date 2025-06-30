@@ -1,0 +1,36 @@
+---
+- name: Umount Data Directory
+  mount:
+    path: "{{ item.dir }}"
+    state: absent
+  loop: "{{ minio_volumes }}"
+
+
+- name: Delete MinIO Config and Binary Files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/usr/lib/systemd/system/{{ minio_service }}-check.timer"
+    - "/usr/lib/systemd/system/{{ minio_service }}-check.service"
+    - "/etc/default/{{ minio_service }}"
+    - "/etc/systemd/system/{{ minio_service }}.service"
+    - "{{ minio_client_bin }}"
+    - "{{ minio_client_config }}"
+    - "{{ minio_config }}"
+    - "{{ minio_bin }}"
+    - "{{ _minio.base_path }}/certs"
+    - "{{ _minio.base_path }}/.minio"
+    - "/etc/nginx/nginx.conf"
+    - "/etc/nginx/conf.d/minio.conf"
+
+
+- name: Delete MinIO Config and Binary Files
+  file:
+    path: "{{ item.dir }}"
+    state: absent
+  with_items: "{{ minio_volumes }}"
+
+
+- import_tasks: ext/cleanup-devices.yml
+

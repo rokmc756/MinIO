@@ -4,14 +4,15 @@ ansible_become_pass: "changeme"
 
 
 _minio:
-  base_path: "/root"
+  base_path: "/home/minio"
   cluster_name: jack-kr-minio
   domain: "jtest.pivotal.io"
   major_version: "15"
   minor_version: "5"
   patch_version: "1"
   build_version: "1"
-  release_date: 20231025
+  # release_date: 20231025
+  release_date: 20250422221226.0.0-1  # Last Release to Support Full Feature which is Not Community Version
   os_version: el9
   arch_type: x86_64
   bin_type: rpm
@@ -38,15 +39,19 @@ _minio:
       ipaddr1: "192.168.1.19"
       ipaddr2: "192.168.2.19"
   vms:
-    rk9: [ "rk9-freeipa", "rk9-node01", "rk9-node02", "rk9-node03", "rk9-node04", "rk9-node05" ]
+    rk9: [ "rk9-freeipa", "rk9-node01", "rk9-node02", "rk9-node03", "rk9-node04", "rk9-node05", "rk9-node06" ]
     ubt24: [ "rk9-freeipa", "ubt24-node01", "ubt24-node02", "ubt24-node03", "ubt24-node04", "ubt24-node05" ]
   debug_opt: ""  # --debug
   access_key: minioadmin
   secret_key: changeme
 
 
+_mc:
+  release_date: 20250521015954.0.0-1
+
+
 _ssl:
-  ssl_dir: "/root/certs"
+  ssl_dir: "{{ _minio.base_path }}/certs"
   ssl_days: 3660
   ssl_country: "KR"
   ssl_state: "Seoul"

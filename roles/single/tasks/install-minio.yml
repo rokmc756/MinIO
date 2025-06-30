@@ -1,100 +1,5 @@
 ---
-- name: Check Number of Drives in Cluster
-  assert:
-    that:
-      - minio_volumes|count >= 4
-      - minio_volumes|count <= 16
-    msg: Minio cluster work with minimum 4 and maximum 16 drives
-  when:
-    - minio_volumes|count > 1
-
-
-- name: Create MinIO User
-  user:
-    name: "{{ minio_user }}"
-    uid: "{{ minio_user_id | d(omit) }}"
-  when: minio_user != 'root'
-
-
-- set_fact:
-    minio_file_name: minio-{{ _minio.release_date }}.tar.gz
-
-
-- name: Check if MinIO Binary Already Exists
-  stat: path={{ minio_bin }}
-  register: minio_bin_exists
-- debug: msg={{ minio_bin_exists }}
-
-
-- name: Copy MinIo Binary from Local Directory
-  copy: src=minio-{{ _minio.release_date }}.tar.gz dest=/tmp/minio-{{ _minio.release_date }}.tar.gz mode=0644 owner=root group=root
-  register: minio_local_copy
-  when: minio_bin_exists.stat.exists == false and minio_download == false
-
-
-- name: Unarchive MinIO
-  unarchive:
-    src: "/tmp/minio-{{ _minio.release_date }}.tar.gz"
-    dest: "/usr/local/bin"
-    owner: "root"
-    group: "root"
-    mode: "0755"
-    remote_src: yes
-    # extra_opts:
-    #- --transform
-    #- s/^xxx/yyy/
-  register: minio_unarchive
-  when: minio_bin_exists.stat.exists == false and minio_download == false
-  notify: Restart MinIO Service
-
-
-- name: Download MinIo Server
-  get_url:
-    url: "{{ minio_server_url }}"
-    dest: "{{ minio_bin }}"
-    mode: 0755
-    checksum: "{{ minio_server_checksum | d(omit) }}"
-  when: ( minio_server_url.endswith('minio') or minio_server_url.endswith('Z') ) and ( minio_bin_exists.stat.exists == false and minio_download == true )
-
-
-- name: Unarchive MinIO Server
-  unarchive:
-    src: "{{ minio_server_url }}"
-    dest: "{{ minio_bin | dirname }}"
-    remote_src: "{{ minio_server_url.startswith('http') }}"
-    validate_certs: no
-    mode: 0755
-  when: minio_server_url.endswith('xz') and ( minio_bin_exists.stat.exists == false and minio_download == true )
-  notify: Restart MinIO Service
-
-
-- name: Create Export Directory
-  file:
-    path: "{{ item | urlsplit('path') }}"
-    state: directory
-    mode: 0755
-    owner: "{{ minio_user }}"
-  when: (item | urlsplit('hostname')) in ([ansible_hostname, ansible_host, ansible_fqdn, none] + ansible_all_ipv4_addresses)
-  with_items: "{{ minio_volumes }}"
-
-
-- name: Check Existing Config
-  stat: path={{ minio_config }}
-  register: config_file
-
-
-- name: Mount a Filesystem
-  mount:
-    src: "{{ item.dev }}"
-    path: "{{ item.dir }}"
-    fstype: xfs
-    opts: defaults
-    state: mounted
-  with_items:
-    - { dev: "/dev/vdb1", dir: "/data01" }
-    - { dev: "/dev/vdc1", dir: "/data02" }
-    - { dev: "/dev/vdd1", dir: "/data03" }
-    - { dev: "/dev/vde1", dir: "/data04" }
+- import_tasks: install-minio-pkgs.yml
 
 
 - block:
@@ -129,7 +34,7 @@
     msg: minio_access_key and minio_secret_key must be defined and is not empty
 
 
-- name: Copy defaults options template
+- name: Copy Defaults Options Template
   template:
     src: minio_opt.j2
     dest: /etc/default/{{ minio_service }}

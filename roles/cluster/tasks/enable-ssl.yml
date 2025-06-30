@@ -5,7 +5,7 @@
 
 
 - name: Create SSL Directory
-  file: path={{ item }} state=directory owner=root group=root
+  file: path={{ item }} state=directory owner={{ minio_user }} group={{ minio_group }}
   changed_when: False
   register: create_ssl_dir
   with_items:
@@ -25,8 +25,8 @@
   copy:
     src: "{{ item.org }}"
     dest: "{{ item.dest }}"
-    owner: root
-    group: root
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
     mode: 0644
     remote_src: yes
   with_items:

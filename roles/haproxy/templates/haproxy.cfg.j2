@@ -20,10 +20,6 @@ defaults
 	timeout client 60s
 	timeout server 60s
 
-frontend postgres-front
-	bind *:{{ _haproxy.frontend_port }}
-	mode tcp
-	default_backend {{ _haproxy.cluster_name }}
 
 listen  admin-stats
 	mode http
@@ -32,19 +28,35 @@ listen  admin-stats
 	stats enable
 	stats refresh 30s
 	stats uri /haproxy?stats
-        stats realm PostgreSQL HAProxy\ Statistics  # Title text for popup window
+        stats realm MinIO HAProxy\ Statistics  # Title Text for PopUp Window
         stats show-node
         stats show-legends
-        stats show-desc PostgreSQL Load Balancer Stats ( Master )
+        stats show-desc MinIO Load Balancer Stats ( Master )
 	stats auth {{ _haproxy.stats_user }}:{{ _haproxy.stats_pass }}
 
-listen  {{ _haproxy.cluster_name }}
-	bind *:{{ _haproxy.pgsql_wrapping_port }}
-	mode tcp
-	option tcplog
-	balance {{ _haproxy.balance_algorithm }}
-        option pgsql-check user haproxy
-    {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:5432 weight 1 check inter 2000 rise 2 fall 3
-    {% endfor %}
+
+frontend minio-api
+	bind *:{{ _haproxy.frontend_port }}
+	# mode tcp
+	default_backend minio-backend
+
+
+backend minio-backend
+    balance roundrobin
+    option httpchk GET /minio/health/live
+{% for h in groups['workers'] %}
+    server {{ h }} {{ h }}.{{ _minio.domain }}:9000 check ssl verify none
+{% endfor %}
+
+
+frontend minio-console
+    bind *:9001
+    default_backend console-backend
+
+
+backend console-backend
+    balance roundrobin
+{% for h in groups['workers'] %}
+    server {{ h }} {{ h }}.{{ _minio.domain }}:9001 check ssl verify none
+{% endfor %}
 

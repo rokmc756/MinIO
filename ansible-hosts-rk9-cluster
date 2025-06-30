@@ -8,9 +8,5 @@ remote_machine_password="changeme"
 rk9-node01 ansible_ssh_host=192.168.2.191
 rk9-node02 ansible_ssh_host=192.168.2.192
 rk9-node03 ansible_ssh_host=192.168.2.193
-
-
-[lb]
-rk9-node04  ansible_ssh_host=192.168.2.194  keepalived_role="master"
-rk9-node05  ansible_ssh_host=192.168.2.195  keepalived_role="slave"
+rk9-node04 ansible_ssh_host=192.168.2.194
 

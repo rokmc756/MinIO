@@ -29,7 +29,7 @@ listen httpcheck
     {% endfor %}
 
 listen  {{ cluster_name }}
-    bind *:{{ pgsql_wrapping_port }}
+    bind *:{{ minio_wrapping_port }}
     mode tcp
     timeout client  10800s
     timeout server  10800s

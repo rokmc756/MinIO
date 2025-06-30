@@ -9,28 +9,39 @@ AssertFileIsExecutable={{ minio_bin }}
 WorkingDirectory={{ minio_user_home }}
 
 # User={{ minio_user }}
-User=root
+# User=root
+User=minio
+Group=minio
+ProtectProc=invisible
 
 EnvironmentFile=-/etc/default/{{ minio_service }}
 ExecStartPre=/bin/bash -c "[ -n \"${MINIO_VOLUMES}\" ] || echo \"Variable MINIO_VOLUMES not set in /etc/default/minio\""
-
 ExecStart={{ minio_bin }} server $MINIO_OPTS $MINIO_VOLUMES
 
-StandardOutput=journal
-StandardError=inherit
+# StandardOutput=journal
+# StandardError=inherit
+
+# Let systemd restart this service always
+Restart=always
 
 # Specifies the maximum file descriptor number that can be opened by this process
 LimitNOFILE=65536
 
+# Specifies the maximum number of threads this process can create
+TasksMax=infinity
+
 # Disable timeout logic and wait until process is stopped
 # TimeoutStopSec=0
 
-# SIGTERM signal is used to stop Minio
-KillSignal=SIGTERM
-
+# Specifies the maximum number of threads this process can create
+TasksMax=infinity
 SendSIGKILL=no
 
-SuccessExitStatus=0
+# SIGTERM signal is used to stop Minio
+# KillSignal=SIGTERM
+
+
+# SuccessExitStatus=0
 
 [Install]
 WantedBy=multi-user.target

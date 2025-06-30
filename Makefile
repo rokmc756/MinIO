@@ -32,8 +32,10 @@ shutdown:
 %:
 	@if [ "${*}" = "single" ]; then\
 		ln -sf ansible-hosts-rk9-single ansible-hosts;\
-	elif [ "${*}" = "multi" ]; then\
-		ln -sf ansible-hosts-rk9-multi ansible-hosts;\
+	elif [ "${*}" = "cluster" ]; then\
+		ln -sf ansible-hosts-rk9-cluster ansible-hosts;\
+	elif [ "${*}" = "haproxy" ]; then\
+		ln -sf ansible-hosts-rk9-haproxy ansible-hosts;\
 	elif [ "${*}" = "hosts" ]; then\
 		ln -sf ansible-hosts-rk9 ansible-hosts;\
 	else\
@@ -46,8 +48,8 @@ shutdown:
 	@rm -f setup-${*}.yml Makefile.${*}
 
 
-# clean:
-# 	rm -rf ./known_hosts install-hosts.yml update-hosts.yml
+clean:
+	rm -rf ./known_hosts setup-*.yml
 
 
 # https://stackoverflow.com/questions/4219255/how-do-you-get-the-list-of-targets-in-a-makefile

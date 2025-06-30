@@ -1,0 +1,37 @@
+---
+# pvremove -y -ff /dev/vdb /dev/sda /dev/sdb
+- name: Purge Block Devices
+  shell: |
+    dd if=/dev/zero of={{ item.dev }} bs=4096 count=1 conv=notrunc
+  register: purge_block_devices
+  ignore_errors: true
+  with_items: "{{ minio_volumes }}"
+- debug: msg={{ purge_block_devices }}
+
+
+- name: Wipe Filesystem in NVME Devices
+  shell: |
+    wipefs -a {{ item.dev }}
+  register: wipefs_nvme_devices
+  ignore_errors: true
+  with_items: "{{ minio_volumes }}"
+- debug: msg={{ wipefs_nvme_devices }}
+
+
+- name: Delete Zap in NVME Devices
+  shell: |
+    sgdisk --zap-all --delete {{ item.dev }}
+  register: delete_zap_nvme_devices
+  ignore_errors: true
+  with_items: "{{ minio_volumes }}"
+- debug: msg={{ delete_zap_nvme_devices }}
+
+
+- name: Discard Block ID
+  shell: |
+    blkdiscard {{ item.dev }}
+  register: discard_block_id
+  ignore_errors: true
+  with_items: "{{ minio_volumes }}"
+- debug: msg={{ discard_block_id }}
+

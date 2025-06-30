@@ -28,15 +28,6 @@
     - '80'
 
 
-#- name: Disabled Firewalld
-#  systemd:
-#    name: 'firewalld'
-#    state: stopped
-#    enabled: no
-#  ignore_errors: true
-#  when: disable_firewall is defined and disable_firewall
-
-
 - name: Whitelist of IP Addresses
   firewalld:
     zone: public
@@ -49,11 +40,4 @@
 
 - name: Bounce firewalld
   service: name=firewalld state=restarted
-
-
-#- name: Stop and Disable Firewalld
-#  systemd:
-#    name: firewalld
-#    state: stopped
-#    enabled: no
 

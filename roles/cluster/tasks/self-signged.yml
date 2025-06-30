@@ -1,0 +1,38 @@
+
+ Example: Self-signed Cluster TLS Setup
+On each node (e.g., rk9-node01, rk9-node02, ...):
+
+Generate a CA (once):
+
+bash
+Copy
+Edit
+openssl genrsa -out ca.key 4096
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.crt \
+  -subj "/C=KR/ST=Seoul/L=Seoul/O=MyOrg/OU=IT/CN=MyMinioCA"
+Generate a cert for each node:
+
+bash
+Copy
+Edit
+openssl req -new -newkey rsa:4096 -nodes -keyout private.key \
+  -out server.csr -subj "/CN=rk9-node01.jtest.pivotal.io"
+
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out public.crt -days 365 -sha256
+Copy public.crt and private.key to:
+
+swift
+Copy
+Edit
+/etc/minio/certs/public.crt
+/etc/minio/certs/private.key
+Copy ca.crt to:
+
+swift
+Copy
+Edit
+/etc/minio/certs/CAs/ca.crt
+
+
+

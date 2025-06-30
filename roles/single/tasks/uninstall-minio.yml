@@ -4,8 +4,18 @@
     name: nginx
     state: stopped
   register: stop_nginx
-  failed_when: false
-  # ignore_errors: true
+  ignore_errors: true
+
+
+- name: Uninstall NGINX Package
+  yum: name={{ nginx_package }} state=absent
+
+
+- name: Remove NGINX Repository ( and clean up left-over metadata )
+  yum_repository:
+    name: epel
+    file: nginx_repo
+    state: absent
 
 
 - name: Delete NGINX Config Files
@@ -18,65 +28,21 @@
     - "/etc/nginx/nginx.conf"
 
 
-- name: Uninstalling NGINX
-  yum: name={{ nginx_package }} state=absent
-
-
-- name: Remove NGINX Repository ( and clean up left-over metadata )
-  yum_repository:
-    name: epel
-    file: nginx_repo
-    state: absent
-
-
 - name: Stopping MinIO
   systemd:
     name: minio
     state: stopped
+  ignore_errors: true
 
 
-- name: Umount Data Directory
-  mount:
-    path: "{{ item }}"
-    state: absent
-  loop: "{{ minio_volumes }}"
-
-
-- name: Delete MinIO Config and Binary Files
-  file:
-    path: "{{ item }}"
-    state: absent
+- name: Uninstall MinIO Package
+  yum: name={{ item }} state=absent
   with_items:
-    - "/usr/lib/systemd/system/{{ minio_service }}-check.timer"
-    - "/usr/lib/systemd/system/{{ minio_service }}-check.service"
-    - "/etc/default/{{ minio_service }}"
-    - "/etc/systemd/system/{{ minio_service }}.service"
-    - "{{ minio_client_bin }}"
-    - "{{ minio_client_config }}"
-    - "{{ minio_config }}"
-    - "{{ minio_volumes }}"
-    - "{{ minio_bin }}"
-    - "/root/certs"
-    - "/root/.minio"
-    - "/etc/nginx/nginx.conf"
-    - "/etc/nginx/conf.d/minio.conf"
+    - minio
+    - mcli
 
 
-- name: Force Sstemd to Reload Configs
+- name: Force Systemd to Reload Configs
   systemd:
     daemon_reload: yes
-
-
-- name: Remove MinIo User
-  user:
-    name: "{{ minio_user }}"
-    state: absent
-    remove: yes
-
-
-- name: Stop and Disable Firewalld
-  systemd:
-    name: 'firewalld'
-    state: stopped
-    enabled: no
 
