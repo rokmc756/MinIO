@@ -191,7 +191,7 @@ _certgen:
 ```
 
 
-#### 4) Deploy MinIO SNMD ( Multi Nodes Multi Devices )
+#### 4) Deploy MinIO MNMD ( Multi Nodes Multi Devices )
 ```yaml
 $ make mnmd r=disable s=firewall
 $ make mnmd r=create s=dev
@@ -310,17 +310,17 @@ _keepalived:
 ```
 
 
-#### 4) Deploy HAProxy for MinIO MNMD Service
+#### 4) Deploy HAProxy and Keepalived for MinIO MNMD Service
 ```yaml
 $ make haproxy r=disable s=sec
-$ make haproxy r=setup s=ha
-$ make haproxy r=setup s=lb
+$ make haproxy r=setup   s=ha
+$ make haproxy r=setup   s=lb
 
 or
 $ make mnmd r=install s=all
 ```
 
-#### 5) Destroy HAProxy for MinIO MNMD Service
+#### 5) Destroy HAProxy and Keepalived for MinIO MNMD Service
 ```yaml
 $ make haproxy r=remove s=lb
 $ make haproxy r=delete s=ha
