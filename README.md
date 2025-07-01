@@ -53,7 +53,26 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 <p align="center">
 <img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio_multi-node_architecture.webp" width="70%" height="70%">
 </p>
+```
+               +----------------------+
+               |     S3 Client        |
+               +----------------------+
+                         |
+                         v
+          https://rk9-node01.jtest.pivotal.io
+                         |
+               +----------------------+
+               |   MinIO Server       |
+               |  (Single Node)       |
+               +----------------------+
+                   |     |     |     |
+                   v     v     v     v
+              +-----+ +-----+ +-----+ +-----+
+              |Disk1| |Disk2| |Disk3| |Disk4|  (XFS/ext4/ZFS)
+              +-----+ +-----+ +-----+ +-----+
 
+         <--- All drives participate in erasure coding --->
+```
 
 #### 2) Configure Inventory for MinIO SNMD ( Single Node Multi Devices )
 ```yaml
