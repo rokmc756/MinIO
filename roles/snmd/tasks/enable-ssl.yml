@@ -1,36 +1,58 @@
 ---
-- name: Check if SSL Directory Alread Exists
-  stat: path={{ _ssl.ssl_dir }}
-  register: check_ssl_dir_exists
-
-
 - name: Create SSL Directory
-  file: path={{ item }} state=directory owner=root group=root
-  changed_when: False
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
   register: create_ssl_dir
   with_items:
     - "{{ _ssl.ssl_dir }}"
     - "{{ _minio.base_path }}/.minio/certs"
+    - "{{ _minio.base_path }}/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}"
+    - "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}"
     - "{{ _minio.base_path }}/.minio/certs/CAs"
 
 
-- name: Create SSL Key
+- name: Generate TLS Keys
   shell: |
-    openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout {{ _ssl.ssl_dir }}/private.key -out {{ _ssl.ssl_dir }}/public.crt \
-    -subj "/CN={{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }}" \
-    -addext "subjectAltName=DNS:{{ hostvars[inventory_hostname]['ansible_hostname'] }}.{{ _minio.domain }},DNS:192.168.1.101,DNS:192.168.1.199,IP:0.0.0.0,IP:127.0.0.1,IP:{{ hostvars[inventory_hostname][_netdev]['ipv4']['address'] }}"
+    certgen -host "localhost,{{ ansible_fqdn }}"
+  register: gen_tls_keys
+  args:
+    executable: /bin/bash
+    chdir: "{{ _ssl.ssl_dir }}"
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+
+
+- name: Change Permission of SSL Key Files
+  file:
+    path: "{{ _ssl.ssl_dir }}/{{ item }}"
+    state: file
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: "0600"
+  with_items:
+    - "private.key"
+    - "public.crt"
 
 
 - name: Copy File with Owner and Permissions
   copy:
     src: "{{ item.org }}"
     dest: "{{ item.dest }}"
-    owner: root
-    group: root
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
     mode: 0644
     remote_src: yes
   with_items:
-    - { org: "{{ _ssl.ssl_dir }}/public.crt", dest: "{{ _minio.base_path }}/.minio/certs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/private.key" }
-    - { org: "{{ _ssl.ssl_dir }}/public.crt", dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/CAs/private.key" }
 

@@ -19,13 +19,20 @@
   when: check_certgen_file.stat.exists != True
 
 
-- name: MV Certgen File
-  shell: |
-    mv {{ _minio.base_path }}/certgen-linux-amd64 /usr/local/bin/certgen
-    chmod 755 /usr/local/bin/certgen
-  args:
-    executable: /bin/bash
-    chdir: "{{ _minio.base_path }}"
-  environment:
-    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+- name: Move Certgen File
+  copy:
+    src: "{{ _minio.base_path }}/certgen-linux-amd64"
+    dest: "/usr/local/bin/certgen"
+    remote_src: yes
+
+
+- name: Change Permission of Certgen File
+  file:
+    path: "{{ item }}"
+    state: file
+    owner: "root"
+    group: "root"
+    mode: "0700"
+  with_items:
+    - "/usr/local/bin/certgen"
 

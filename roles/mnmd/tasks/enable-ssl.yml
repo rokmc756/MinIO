@@ -34,7 +34,7 @@
   when: inventory_hostname not in groups['control']
 
 
-- name: Change Permission of SSL Key Files to Login Postgres Database via SSL
+- name: Change Permission of SSL Key Files
   file:
     path: "{{ _ssl.ssl_dir }}/{{ item }}"
     state: file

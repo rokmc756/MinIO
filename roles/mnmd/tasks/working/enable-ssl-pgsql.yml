@@ -86,7 +86,7 @@
 #  register: replace_csr_crt
 
 
-- name: Change Permission of SSL Key Files to Login Postgres Database via SSL
+- name: Change Permission of SSL Key Files
   file:
     path: "{{ _ssl.ssl_dir }}/{{ item }}"
     state: file
