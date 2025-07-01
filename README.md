@@ -50,9 +50,6 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 
 ## For MinIO SNMD ( Single Node Multi Devices )
 #### 1) The Architecure of MinIO SNMD
-<p align="center">
-<img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio_multi-node_architecture.webp" width="70%" height="70%">
-</p>
 ```
                +----------------------+
                |     S3 Client        |
@@ -301,7 +298,6 @@ _keepalived:
   notification_command_fault:  False   # Execute a command when state changes to fault
 ~~ snip
 ```
-
 
 
 #### 4) Deploy HAProxy for MinIO MNMD Service
