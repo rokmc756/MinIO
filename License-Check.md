@@ -1,5 +1,6 @@
 
-# _minio:
+### MinIO Server
+```
 #  release_date: 20250422221226.0.0-1  # Last Release to Support Full Feature which is Not Community Version
 #  20230131022419.0.0 - OK
 #  20230227181045.0.0 - Ok
@@ -32,9 +33,11 @@
 #  20250524170830.0.0-1 - Run OK But, Only Provide Community Version
 #  20250613113347.0.0-1 - Run OK But, Only Provide Community Version
 #  20250627223056.0.0-1 - Not OK, Need License to Run MinIO Server
+```
 
 
-# _mc:
+### MinIO Client
+```
 #  release_date: 20250521015954.0.0-1
 #
 # 20230128202938.0.0 - OK
@@ -65,4 +68,4 @@
 # 20250312172924.0.0-1 - OK
 # 20250416181326.0.0-1 - OK
 # 20250521015954.0.0-1 - OK
-
+```
