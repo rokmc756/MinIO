@@ -321,7 +321,7 @@ $ make haproxy r=uninstall s=all
 ```
 
 ## Planning
-- [O] Need to Check Configuration URL Redirect for HAProxy
+- [X] Need to Check Configuration URL Redirect for HAProxy
 
 ### References
 - https://apps.truenas.com/resources/minio-enterprise-mnmd/
