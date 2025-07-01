@@ -33,7 +33,7 @@ $ sudo yum install -y python3-netaddr
 ## Prepareing OS
 * Configure Yum / Local & EPEL Repostiory
 
-## Download / configure / run MinIO Ansible Playbook
+## Clone / Configure / Run MinIO Ansible Playbook
 ```yaml
 $ git clone https://github.com/rokmc756/MinIO
 $ cd MinIO
