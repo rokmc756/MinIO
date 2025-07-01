@@ -212,7 +212,7 @@ $ make mnmd r=uninstall s=all
      | MinIO Node |  | MinIO Node |  | MinIO Node |  | MinIO Node |
      |  rk9-node1 |  |  rk9-node2 |  |  rk9-node3 |  |  rk9-node4 |
      +------------+  +------------+  +------------+  +------------+
-     |  /data{1..n}|  |  /data{1..n}|  |  /data{1..n}|  |  /data{1..n}|
+     |/data0{1..n}|  |/data0{1..n}|  |/data0{1..n}|  |/data0{1..n}|
 
      <---> All nodes form a single MinIO cluster in distributed MNMD mode
 ```
