@@ -7,7 +7,7 @@ If you are working with MinIO such as Developer, Administrator, Field Engineer o
 ## Where is this ansible playbook from and how is it changed?
 It's originated by itself.
 
-## Supported PGDG Postgres versions
+## Supported MiniIO Versions
 * MinIO Version and Release Date: 20250422221226.0.0-1. Because the higher version of it require license.
 
 ## Supported Platform and OS
@@ -18,7 +18,7 @@ It's originated by itself.
 ## Prerequisite
 * MacOS or Fedora/CentOS/RHEL should have installed ansible as ansible host.
 * Supported OS for ansible target host should be prepared with package repository configured such as yum, dnf and apt
-## Prepare ansible host to run vmware-postgres ansible playbook
+## Prepare ansible host to run MinIO ansible playbook
 * MacOS
 ```yaml
 $ xcode-select --install
@@ -40,8 +40,8 @@ $ git clone https://github.com/rokmc756/MinIO
 $ cd MinIO
 $ vi Makefile
 ~~ snip
-ANSIBLE_HOST_PASS="changeme"    # It should be changed with password of user in ansible host that vmware-postgres would be run.
-ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that vmware-postgres would be installed.
+ANSIBLE_HOST_PASS="changeme"    # It should be changed with password of user in ansible host that minio would be run.
+ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that minio would be installed.
 ~~ snip
 ```
 
@@ -66,7 +66,7 @@ remote_machine_password="changeme"
 rk9-node01 ansible_ssh_host=192.168.2.171
 ```
 
-#### 3) Configure variables for Single PGDG Postgres
+#### 3) Configure variables for
 ```yaml
 $ vi roles/snmd/defaults/main.yml
 ---
@@ -111,7 +111,7 @@ $ make snmd r=uninstall s=all
 ## For MinIO MNMD ( Multi Nodes Multi Devices )
 #### 1) The Architecure of MinIO MNMD 
 <p align="center">
-<img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio_multi-node_architecture.webp" width="70%" height="70%">
+<img src="https://github.com/rokmc756/minio/blob/main/roles/mnmd/images/architecture-4-node-deploy.svg" width="70%" height="70%">
 </p>
 
 
@@ -289,5 +289,5 @@ $ make haproxy r=uninstall s=all
 
 ### References
 - https://apps.truenas.com/resources/minio-enterprise-mnmd/
-
+- https://mahendrapalla.hashnode.dev/how-to-set-up-a-multi-node-multi-drive-mnmd-minio-cluster-production-ready
 
