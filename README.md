@@ -4,8 +4,6 @@ The main purpose of this project is actually very simple. Because there are many
 engineer. I just want to spend less time for it.
 
 If you are working with MinIO such as Developer, Administrator, Field Engineer or Storage Administrator you could also utilize it very conviently as saving time.
-## Where is this ansible playbook from and how is it changed?
-It's originated by itself.
 
 ## Supported MiniIO Versions
 * MinIO Version and Release Date: 20250422221226.0.0-1. Because the higher version of it requires license.
@@ -31,9 +29,9 @@ $ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Libr
 $ sudo yum install ansible
 $ sudo yum install -y python3-netaddr
 ```
+
 ## Prepareing OS
 * Configure Yum / Local & EPEL Repostiory
-
 
 ## Download / configure / run MinIO Ansible Playbook
 ```yaml
@@ -45,7 +43,6 @@ ANSIBLE_HOST_PASS="changeme"    # It should be changed with password of user in 
 ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that minio would be installed.
 ~~ snip
 ```
-
 
 ## For MinIO SNMD ( Single Node Multi Devices )
 #### 1) The Architecure of MinIO SNMD
@@ -123,7 +120,6 @@ or
 $ make snmd r=uninstall s=all
 ```
 
-
 ## For MinIO MNMD ( Multi Nodes Multi Devices )
 #### 1) The Architecure of MinIO MNMD 
 ```
@@ -138,7 +134,6 @@ $ make snmd r=uninstall s=all
    | /data0{1..4} |<->| /data0{1..4} |<->| /data0{1..4} |<->| /data0{1..4} |
    +--------------|   +--------------+   +--------------+   +--------------+
 ```
-
 
 #### 2) Configure Inventory for MinIO MNMD ( Multi Nodes Multi Devices )
 ```yaml
@@ -190,7 +185,6 @@ _certgen:
 ~~ snip
 ```
 
-
 #### 4) Deploy MinIO MNMD ( Multi Nodes Multi Devices )
 ```yaml
 $ make mnmd r=disable s=firewall
@@ -212,7 +206,6 @@ $ make mnmd r=delete s=dev
 or
 $ make mnmd r=uninstall s=all
 ```
-
 
 ## For HAProxy and Keepalived for Distributed MinIO MNMD ( Multi Nodes Multi Devices )
 #### 1) The Architecure of HAProxy and Keepalived for MinIO MNMD
@@ -243,7 +236,6 @@ $ make mnmd r=uninstall s=all
      <---> All nodes form a single MinIO cluster in distributed MNMD mode
 ```
 
-
 #### 2) Configure Inventory for HAProxy and Keepalived
 ```yaml
 $ vi ansible-hosts-rk9-haproxy
@@ -263,7 +255,6 @@ rk9-node04 ansible_ssh_host=192.168.1.174
 rk9-node05  ansible_ssh_host=192.168.1.175  keepalived_role="master"
 rk9-node06  ansible_ssh_host=192.168.1.176  keepalived_role="slave"
 ```
-
 
 #### 3) Configure Variables for HAProxy and Keepalived
 ```yaml
@@ -309,7 +300,6 @@ _keepalived:
 ~~ snip
 ```
 
-
 #### 4) Deploy HAProxy and Keepalived for MinIO MNMD Service
 ```yaml
 $ make haproxy r=disable s=sec
@@ -330,10 +320,8 @@ or
 $ make haproxy r=uninstall s=all
 ```
 
-
 ## Planning
 - [O] Need to Check Configuration URL Redirect for HAProxy
-
 
 ### References
 - https://apps.truenas.com/resources/minio-enterprise-mnmd/
