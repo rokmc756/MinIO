@@ -46,8 +46,6 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 ```
 
 
-
-
 ## For MinIO SNMD ( Single Node Multi Devices )
 #### 1) The Architecure of MinIO SNMD
 ```
@@ -126,9 +124,18 @@ $ make snmd r=uninstall s=all
 
 ## For MinIO MNMD ( Multi Nodes Multi Devices )
 #### 1) The Architecure of MinIO MNMD 
-<p align="center">
-<img src="https://github.com/rokmc756/minio/blob/main/roles/mnmd/images/architecture-4-node-deploy.svg" width="70%" height="70%">
-</p>
+```
+            +-----------------------------------------------------+
+            |                      S3 Clients                     |
+            +-----------------------------------------------------+
+              /              |              \                  \
+             v               v               v                  v
+       rk9-node01       rk9-node02         rk9-node03         rk9-node04
+   +--------------+   +--------------+   +--------------+   +--------------+
+   | MinIO Node 1 |   | MinIO Node 2 |   | MinIO Node 3 |   | MinIO Node 4 |
+   |  /data1..4   |<->|  /data1..4   |<->| /data0{1..4} |<->| /data0{1..4} |
+   +--------------|   +--------------+   +--------------+   +--------------+
+```
 
 
 #### 2) Configure Inventory for MinIO MNMD ( Multi Nodes Multi Devices )
