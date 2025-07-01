@@ -191,25 +191,21 @@ $ make mnmd r=uninstall s=all
 
 ## For HAProxy and Keepalived for Distributed MinIO MNMD ( Multi Nodes Multi Devices )
 #### 1) The Architecure of HAProxy and Keepalived for MinIO MNMD
-<p align="center">
-<img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio_multi-node_architecture.webp" width="70%" height="70%">
-</p>
-
 
 ```
-                    +-------------------------+
-                    |     S3 Client / User    |
-                    +-----------+-------------+
-                                |
-                                | (VIP) e.g., https://minio.example.com
-                                v
-                   +-----------------------------+
-                   |     Keepalived + HAProxy    |   <== Active Node
-                   +-----------------------------+
-                                |
-                    -------------------------------
-                   |       Load Balanced Traffic     |
-                    -------------------------------
+                   +----------------------+
+                   |    S3 Client / User  |
+                   +----------------------+
+                          /
+                         /                (VIP) e.g., https://minio-console.jtest.pivotal.io
+                        v         
+           +----------------------+     +------------------------+
+   Active  | Keepalived + HAProxy |<--> |  Keepalived + HAProxy  |  Standby
+           +----------------------+     +------------------------+
+                        |                       |
+            +-----------------------------------------+
+            |          Load Balanced Traffic          |
+            +-----------------------------------------+
                /           |           |            \
               v            v           v             v
      +------------+  +------------+  +------------+  +------------+
