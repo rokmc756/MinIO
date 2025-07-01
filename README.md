@@ -68,7 +68,7 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 <--- All drives participate in erasure coding --->
 ```
 
-#### 2) Configure Inventory for MinIO SNMD ( Single Node Multi Devices )
+#### 2) Configure Inventory for MinIO SNMD 
 ```yaml
 [all:vars]
 ssh_key_filename="id_rsa"
@@ -99,7 +99,7 @@ minio_volumes:
 ~~ snip
 ```
 
-#### 4) Deploy MinIO SNMD ( Single Node Multi Devices )
+#### 4) Deploy MinIO SNMD
 ```yaml
 $ make snmd r=disable s=firewall
 $ make snmd r=create s=dev
@@ -111,7 +111,7 @@ or
 $ make snmd r=install s=all
 ```
 
-#### 5) Destroy MinIO SNMD ( Single Node Multi Devices )
+#### 5) Destroy MinIO SNMD
 ```yaml
 $ make snmd r=remove s=minio
 $ make snmd r=delete s=dev
@@ -135,7 +135,7 @@ $ make snmd r=uninstall s=all
    +--------------|   +--------------+   +--------------+   +--------------+
 ```
 
-#### 2) Configure Inventory for MinIO MNMD ( Multi Nodes Multi Devices )
+#### 2) Configure Inventory for MinIO MNMD
 ```yaml
 $ vi ansible-hosts-rk9-mnmd
 
@@ -185,7 +185,7 @@ _certgen:
 ~~ snip
 ```
 
-#### 4) Deploy MinIO MNMD ( Multi Nodes Multi Devices )
+#### 4) Deploy MinIO MNMD
 ```yaml
 $ make mnmd r=disable s=firewall
 $ make mnmd r=create s=dev
@@ -198,7 +198,7 @@ or
 $ make mnmd r=install s=all
 ```
 
-#### 5) Destroy MinIO MNMD ( Multi Nodes Multi Devices )
+#### 5) Destroy MinIO MNMD
 ```yaml
 $ make mnmd r=remove s=minio
 $ make mnmd r=delete s=dev
