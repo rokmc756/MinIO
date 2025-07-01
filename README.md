@@ -196,6 +196,32 @@ $ make mnmd r=uninstall s=all
 </p>
 
 
+```
+                    +-------------------------+
+                    |     S3 Client / User    |
+                    +-----------+-------------+
+                                |
+                                | (VIP) e.g., https://minio.example.com
+                                v
+                   +-----------------------------+
+                   |     Keepalived + HAProxy    |   <== Active Node
+                   +-----------------------------+
+                                |
+                    -------------------------------
+                   |       Load Balanced Traffic     |
+                    -------------------------------
+               /           |           |            \
+              v            v           v             v
+     +------------+  +------------+  +------------+  +------------+
+     | MinIO Node |  | MinIO Node |  | MinIO Node |  | MinIO Node |
+     |  rk9-node1 |  |  rk9-node2 |  |  rk9-node3 |  |  rk9-node4 |
+     +------------+  +------------+  +------------+  +------------+
+     |  /data{1..n}|  |  /data{1..n}|  |  /data{1..n}|  |  /data{1..n}|
+
+     <---> All nodes form a single MinIO cluster in distributed MNMD mode
+```
+
+
 #### 2) Configure Inventory for HAProxy and Keepalived
 ```yaml
 $ vi ansible-hosts-rk9-haproxy
@@ -290,4 +316,5 @@ $ make haproxy r=uninstall s=all
 ### References
 - https://apps.truenas.com/resources/minio-enterprise-mnmd/
 - https://mahendrapalla.hashnode.dev/how-to-set-up-a-multi-node-multi-drive-mnmd-minio-cluster-production-ready
+- https://medium.com/@johanesmistrialdo/simple-multinode-multidrive-minio-deployment-f23e09906db1
 
