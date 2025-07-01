@@ -3,22 +3,23 @@ It is ansible playbook to deploy Distributed MinIO SNMD ( Single Node Multi Devi
 The main purpose of this project is actually very simple. Because there are many jobs to install different kind of MinIO versions and reproduce issues & test features as a support
 engineer. I just want to spend less time for it.
 
-If you are working with MinIO such as Developer, Administrator, Field Engineer or Database Administrator you could also utilize it very conviently as saving time.
+If you are working with MinIO such as Developer, Administrator, Field Engineer or Storage Administrator you could also utilize it very conviently as saving time.
 ## Where is this ansible playbook from and how is it changed?
 It's originated by itself.
 
 ## Supported MiniIO Versions
-* MinIO Version and Release Date: 20250422221226.0.0-1. Because the higher version of it require license.
+* MinIO Version and Release Date: 20250422221226.0.0-1. Because the higher version of it requires license.
 
 ## Supported Platform and OS
 * Virtual Machines
 * Baremetal
-* RHEL/CentOS/Rocky Linux 9.x, 10.x
+* RHEL/CentOS/Rocky Linux 9.x so far
 
 ## Prerequisite
 * MacOS or Fedora/CentOS/RHEL should have installed ansible as ansible host.
 * Supported OS for ansible target host should be prepared with package repository configured such as yum, dnf and apt
-## Prepare ansible host to run MinIO ansible playbook
+
+## Prepare ansible host to setup MinIO by ansible playbook
 * MacOS
 ```yaml
 $ xcode-select --install
@@ -34,7 +35,7 @@ $ sudo yum install -y python3-netaddr
 * Configure Yum / Local & EPEL Repostiory
 
 
-## Download / configure / run MinIO
+## Download / configure / run MinIO Ansible Playbook
 ```yaml
 $ git clone https://github.com/rokmc756/MinIO
 $ cd MinIO
@@ -81,7 +82,7 @@ remote_machine_password="changeme"
 rk9-node01 ansible_ssh_host=192.168.2.171
 ```
 
-#### 3) Configure variables for
+#### 3) Configure Variables
 ```yaml
 $ vi roles/snmd/defaults/main.yml
 ---
@@ -319,7 +320,7 @@ or
 $ make mnmd r=install s=all
 ```
 
-#### 4) Destroy HAProxy for MinIO MNMD Service
+#### 5) Destroy HAProxy for MinIO MNMD Service
 ```yaml
 $ make haproxy r=remove s=lb
 $ make haproxy r=delete s=ha
@@ -328,6 +329,7 @@ $ make haproxy r=enable s=sec
 or
 $ make haproxy r=uninstall s=all
 ```
+
 
 ## Planning
 - [O] Need to Check Configuration URL Redirect for HAProxy
