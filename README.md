@@ -49,24 +49,25 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 ## For MinIO SNMD ( Single Node Multi Devices )
 #### 1) The Architecure of MinIO SNMD
 ```
-               +----------------------+
-               |     S3 Client        |
-               +----------------------+
-                         |
-                         v
-          https://rk9-node01.jtest.pivotal.io
-                         |
-               +----------------------+
-               |   MinIO Server       |
-               |  (Single Node)       |
-               +----------------------+
-                   |     |     |     |
-                   v     v     v     v
-              +-----+ +-----+ +-----+ +-----+
-              |Disk1| |Disk2| |Disk3| |Disk4|  (XFS/ext4/ZFS)
-              +-----+ +-----+ +-----+ +-----+
+            +--------------------+
+            |     S3 Client      |
+            +--------------------+
+                       |
+                       v
+      https://rk9-node01.jtest.pivotal.io
+                       |
+                       v
+    +------------------------------------+
+    |             MinIO Server           |
+    |            ( Single Node )         |
+    +------------------------------------+
+       |          |         |         |
+       v          v         v         v
+   +-------+  +-------+ +-------+ +-------+
+   | Disk1 |  | Disk2 | | Disk3 | | Disk4 |  (XFS/ext4/ZFS)
+   +-------+  +-------+ +-------+ +-------+
 
-         <--- All drives participate in erasure coding --->
+<--- All drives participate in erasure coding --->
 ```
 
 #### 2) Configure Inventory for MinIO SNMD ( Single Node Multi Devices )
@@ -128,12 +129,12 @@ $ make snmd r=uninstall s=all
             +-----------------------------------------------------+
             |                      S3 Clients                     |
             +-----------------------------------------------------+
-              /              |              \                  \
-             v               v               v                  v
+              /              |               \                 \
+             v               v                v                 v
        rk9-node01       rk9-node02         rk9-node03         rk9-node04
    +--------------+   +--------------+   +--------------+   +--------------+
    | MinIO Node 1 |   | MinIO Node 2 |   | MinIO Node 3 |   | MinIO Node 4 |
-   |  /data1..4   |<->|  /data1..4   |<->| /data0{1..4} |<->| /data0{1..4} |
+   | /data0{1..4} |<->| /data0{1..4} |<->| /data0{1..4} |<->| /data0{1..4} |
    +--------------|   +--------------+   +--------------+   +--------------+
 ```
 
@@ -220,22 +221,23 @@ $ make mnmd r=uninstall s=all
                    |    S3 Client / User  |
                    +----------------------+
                           /
-                         /                (VIP) e.g., https://minio-console.jtest.pivotal.io
-                        v         
-           +----------------------+     +------------------------+
-   Active  | Keepalived + HAProxy |<--> |  Keepalived + HAProxy  |  Standby
-           +----------------------+     +------------------------+
-                        |                       |
-            +-----------------------------------------+
-            |          Load Balanced Traffic          |
-            +-----------------------------------------+
-               /           |           |            \
-              v            v           v             v
+                         /
+                        v (VIP) - https://minio-console.jtest.pivotal.io
+           +----------------------+    +------------------------+
+   Active  | Keepalived + HAProxy |<-->|  Keepalived + HAProxy  |  Standby
+           +----------------------+    +------------------------+
+                        |                      |
+            +-------------------------------------------+
+            |          Load Balanced Traffic            |
+            +-------------------------------------------+
+               /           |           |              \
+              v            v           v               v
      +------------+  +------------+  +------------+  +------------+
      | MinIO Node |  | MinIO Node |  | MinIO Node |  | MinIO Node |
      |  rk9-node1 |  |  rk9-node2 |  |  rk9-node3 |  |  rk9-node4 |
      +------------+  +------------+  +------------+  +------------+
-     |/data0{1..n}|  |/data0{1..n}|  |/data0{1..n}|  |/data0{1..n}|
+     |/data0{1..4}|  |/data0{1..4}|  |/data0{1..4}|  |/data0{1..4}|
+     +------------+  +------------+  +------------+  +------------+
 
      <---> All nodes form a single MinIO cluster in distributed MNMD mode
 ```
