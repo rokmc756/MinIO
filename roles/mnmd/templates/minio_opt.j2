@@ -1,5 +1,5 @@
 # Local Export path.
-MINIO_VOLUMES="https://{{ hostname_prefix }}{1...{{ last_host_num }}}.{{ _minio.domain }}:{{ minio_port }}{{ data_prefix }}{1...{{ last_host_num }}}"
+MINIO_VOLUMES="https://{{ hostname_prefix }}{1...{{ last_host_num }}}.{{ _minio.domain }}:{{ minio_port }}{{ data_prefix }}{1...{{ nvme_count_min_value }}}"
 
 # Use if you want to run Minio on a custom port.
 # MINIO_OPTS="--certs-dir={{ _minio.base_path }}/certs --console-address {{ minio_listen_address }}:{{ minio_static_port }}"
@@ -7,6 +7,8 @@ MINIO_OPTS="--console-address {{ minio_listen_address }}:{{ minio_static_port }}
 
 MINIO_ROOT_USER={{ minio_root_user }}
 MINIO_ROOT_PASSWORD={{ minio_root_password }}
+
+MINIO_STORAGE_CLASS_STANDARD=EC:{{ _minio.ec.parity }}
 
 # MINIO_DEBUG=on
 # MINIO_CERT_DIR="{{ _minio.base_path }}/certs"

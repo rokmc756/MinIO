@@ -50,3 +50,6 @@
   with_items: "{{ ansible_all_ipv4_addresses }}"
   when: "item | ansible.utils.ipaddr( minio_network_range )"
 
+
+- import_tasks: ext/check-nvme-list.yml
+

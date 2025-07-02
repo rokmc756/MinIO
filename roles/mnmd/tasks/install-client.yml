@@ -58,3 +58,11 @@
   when:
     - minio_client_admin_host in [ansible_default_ipv4.address, 'localhost', ansible_hostname, ansible_nodename, ansible_host]
 
+
+# mc --insecure alias set myminio https://192.168.1.171:9000 minioadmin changeme
+# mc --insecure admin info myminio
+
+# mc --insecure admin config set myminio storage_class standard=EC:4
+# mc --insecure admin info myminio
+
+

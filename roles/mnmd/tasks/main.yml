@@ -6,7 +6,7 @@
 
 - name: Set Facts for Network and Packages Informations
   import_tasks: set-minio-facts.yml
-  tags: install, uninstall, create, delete, setup, remove, upload, download, enable, disable, mount, umount
+  tags: testfact, install, uninstall, create, delete, setup, remove, upload, download, enable, disable, mount, umount
 
 
 - name: Configure Firewalld for MinIO

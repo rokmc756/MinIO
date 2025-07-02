@@ -25,6 +25,9 @@ _minio:
   download: false
   host_num: "{{ groups['all'] | length }}"
   enable_ssl: true
+  ec:
+    stripe_size: 16
+    parity: 4
   net:
     type: "virtual"                # Or Physical
     gateway: "192.168.0.1"
