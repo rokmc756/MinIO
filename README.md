@@ -266,10 +266,6 @@ $ vi roles/haproxy/vars/main.yml
 ---
 _haproxy:
   cluster_name: minioclu01
-  minio_user: minio
-  minio_group: minio
-  minio_wrapping_port: 5432
-  balance_algorithm: roundrobin
   global_max_connections: 4096
   defaults_max_connections: 2000
   user: haproxy
@@ -278,6 +274,9 @@ _haproxy:
   stats_user: haadmin
   stats_pass: changeme
   minio:
+    user: minio
+    group: minio
+    password: changeme
     api:
       frontend_port: 9000
       backend_port: 9000
