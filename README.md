@@ -274,10 +274,18 @@ _haproxy:
   defaults_max_connections: 2000
   user: haproxy
   group: haproxy
-  frontend_port: 9000
   stats_port: 8182
   stats_user: haadmin
   stats_pass: changeme
+  minio:
+    api:
+      frontend_port: 9000
+      backend_port: 9000
+      balance: leastconn
+    console:
+      frontend_port: 9001
+      backend_port: 9001
+      balance: leastconn
 
 
 # Variables for Role Keepalived
