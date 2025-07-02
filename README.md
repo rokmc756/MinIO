@@ -5,6 +5,11 @@ engineer. I just want to spend less time for it.
 
 If you are working with MinIO such as Developer, Administrator, Field Engineer or Storage Administrator you could also utilize it very conviently as saving time.
 
+## MinIO Architecture
+<p align="center">
+<img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio-architecture.webp" width="100%" height="100%">
+</p>
+
 ## Supported MiniIO Versions
 * MinIO Version and Release Date: 20250422221226.0.0-1. Because the higher version of it requires license.
 
