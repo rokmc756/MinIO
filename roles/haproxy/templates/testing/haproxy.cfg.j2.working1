@@ -8,7 +8,6 @@ global
 	# chroot /usr/local/haproxy
 	# pidfile /var/run/haproxy.pid
 
-
 defaults
 	log global
 	mode tcp
@@ -36,39 +35,34 @@ listen  admin-stats
 	stats auth {{ _haproxy.stats_user }}:{{ _haproxy.stats_pass }}
 
 
-frontend minio-service
+# DEV MinIO API Load Balancer
+#Requests are distributed to the backends by using roundrobin algorthym. 
+#HAProxy listens to the 9000 port of minio backend nodes.
+listen minio-api
+    mode http
+    balance leastconn
     bind *:9000
-    mode tcp
-    option tcplog
-    default_backend minio-servce-backend
-
-
-backend minio-servce-backend
-    option httpchk GET /healthz
+#if "200 OK" received from backend, HAProxy determines that the backend is healthy
+    option httpchk GET /minio/health/live HTTP/1.1
+    http-check send hdr Host myminio
     http-check expect status 200
-    mode tcp
-    option ssl-hello-chk
-    balance     leastconn
+    default-server inter 3s fall 2 rise 2 on-marked-down shutdown-sessions
 {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9000 check
+    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9000 check maxconn 1000
 {% endfor %}
 
 
-frontend minio-console
+# MinIO Console Load Balancer
+# This is for load balancing the web console. It is bind to virtual_ip:9001
+listen minio-console
+    mode http
+    balance leastconn
     bind *:9001
-    mode tcp
-    option tcplog
-    default_backend minio-console-backend
-
-
-backend minio-console-backend
-    option httpchk GET /healthz
+    option httpchk GET /minio/health/ready
     http-check expect status 200
-    mode tcp
-    option ssl-hello-chk
-    balance     leastconn
+    default-server inter 3s fall 2 rise 2 on-marked-down shutdown-sessions
 {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9001 check
+        server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9001 check maxconn 1000
 {% endfor %}
 
 

@@ -37,3 +37,16 @@
     state: restarted
   when: inventory_hostname in groups['lb']
 
+
+# To Debug Further
+# Try using curl from the HAProxy machine:
+# bash
+# Edit
+# curl -v http://192.168.2.171:9001/minio/health/ready
+
+# or for HTTPS:
+# bash
+# Edit
+# curl -vk https://192.168.2.171:9001/minio/health/ready
+
+
