@@ -36,8 +36,14 @@ listen  admin-stats
 	stats auth {{ _haproxy.stats_user }}:{{ _haproxy.stats_pass }}
 
 
+frontend http_service
+    bind *:80
+    mode http
+    redirect scheme https code 301 if !{ ssl_fc }
+
+
 frontend minio-service
-    bind *:9000
+    bind *:{{ _haproxy.minio.api_frontend_port }}
     mode tcp
     option tcplog
     default_backend minio-servce-backend
@@ -50,12 +56,12 @@ backend minio-servce-backend
     option ssl-hello-chk
     balance     leastconn
 {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9000 check
+    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api_backend_port }} check
 {% endfor %}
 
 
 frontend minio-console
-    bind *:9001
+    bind *:{{ _haproxy.minio.console_frontend_port }}
     mode tcp
     option tcplog
     default_backend minio-console-backend
@@ -68,10 +74,7 @@ backend minio-console-backend
     option ssl-hello-chk
     balance     leastconn
 {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:9001 check
+    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.console_backend_port }} check
 {% endfor %}
 
-
-# References
-# - https://www.configland.com/index.php?option=com_content&view=article&layout=edit&id=324
 

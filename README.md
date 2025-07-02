@@ -372,7 +372,8 @@ $ make minio r=uninstall s=directpv
 ```
 
 ## Planning
-- [X] Need to Check Configuration URL Redirect for HAProxy
+- [O] Need to Check Configuration URL Redirect for HAProxy : Check haproxy.cfg
+
 
 ### References
 - https://apps.truenas.com/resources/minio-enterprise-mnmd/
