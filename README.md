@@ -324,12 +324,44 @@ or
 $ make haproxy r=uninstall s=all
 ```
 
-## For Distributed MinIO with DirectPVon Kubernetes
+## For Distributed MinIO with DirectPV on Kubernetes
 #### 1) The Architecure of Distributed MinIO with DirectPV on Kubernetes
 <p align="center">
-<img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/minio-directpv-architecture.webp" width="80%" height="80%">
+<img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/directpv-architecture.svg" width="80%" height="80%">
 </p>
 
+#### 2) Configure Variables for HAProxy and Keepalived
+```yaml
+$ cd Kubernetes
+$ vi roles/minio/var/main.yml
+---
+_krew:
+  base_path: "/root"
+  download_url: "https://github.com/kubernetes-sigs/krew/releases/latest/download"
+  major_version: 0
+  minor_version: 4
+  patch_version: 5
+
+_directpv:
+  base_path: "/root"
+  download_url: "https://github.com/minio/directpv/releases/download"
+  major_version: 4
+  minor_version: 1
+  patch_version: 5
+~~ snip
+```
+
+#### 3) Deploy Distributed MinIO With DirectPV on Kubernetes
+```yaml
+$ make minio r=install s=directpv
+$ make minio r=install s=all
+```
+
+#### 4) Distributed Distributed MinIO With DirectPV on Kubernetes
+```yaml
+$ make minio r=uninstall s=all
+$ make minio r=uninstall s=directpv
+```
 
 ## Planning
 - [X] Need to Check Configuration URL Redirect for HAProxy
