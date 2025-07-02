@@ -330,7 +330,7 @@ $ make haproxy r=uninstall s=all
 <img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/directpv-architecture.svg" width="80%" height="80%">
 </p>
 
-#### 2) Configure Variables for HAProxy and Keepalived
+#### 2) Configure Variables for DirectPV
 ```yaml
 $ cd Kubernetes
 $ vi roles/minio/var/main.yml
