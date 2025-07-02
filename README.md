@@ -330,9 +330,9 @@ $ make haproxy r=uninstall s=all
 <img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/directpv-architecture.svg" width="80%" height="80%">
 </p>
 
-#### 2) The Architecure of Distributed and DirectPV on Kubernetes
+#### 2) The Architecure of Distributed MinIO and DirectPV on Kubernetes
 <p align="center">
-<img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/minio-architecture.svg" width="80%" height="80%">
+<img src="https://github.com/rokmc756/MinIO/blob/main/roles/minio/images/minio-directpv-architecture.web" width="80%" height="80%">
 </p>
 
 
