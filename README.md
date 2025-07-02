@@ -324,6 +324,13 @@ or
 $ make haproxy r=uninstall s=all
 ```
 
+## For Distributed MinIO with DirectPVon Kubernetes
+#### 1) The Architecure of Distributed MinIO with DirectPV on Kubernetes
+<p align="center">
+<img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/minio-directpv-architecture.webp" width="80%" height="80%">
+</p>
+
+
 ## Planning
 - [X] Need to Check Configuration URL Redirect for HAProxy
 
