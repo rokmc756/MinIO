@@ -36,14 +36,20 @@ listen  admin-stats
 	stats auth {{ _haproxy.stats_user }}:{{ _haproxy.stats_pass }}
 
 
-frontend http_service
+frontend http-service
     bind *:80
-    mode http
-    redirect scheme https code 301 if !{ ssl_fc }
+    mode tcp
+    default_backend minio-console-backend
+
+
+frontend https-service
+    bind *:443
+    mode tcp
+    default_backend minio-console-backend
 
 
 frontend minio-service
-    bind *:{{ _haproxy.minio.api_frontend_port }}
+    bind *:{{ _haproxy.minio.api.frontend_port }}
     mode tcp
     option tcplog
     default_backend minio-servce-backend
@@ -54,14 +60,14 @@ backend minio-servce-backend
     http-check expect status 200
     mode tcp
     option ssl-hello-chk
-    balance     leastconn
+    balance     {{ _haproxy.minio.api.balance }}
 {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api_backend_port }} check
+    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} check
 {% endfor %}
 
 
 frontend minio-console
-    bind *:{{ _haproxy.minio.console_frontend_port }}
+    bind *:{{ _haproxy.minio.console.frontend_port }}
     mode tcp
     option tcplog
     default_backend minio-console-backend
@@ -72,9 +78,9 @@ backend minio-console-backend
     http-check expect status 200
     mode tcp
     option ssl-hello-chk
-    balance     leastconn
+    balance     {{ _haproxy.minio.console.balance }}
 {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.console_backend_port }} check
+    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.console.backend_port }} check
 {% endfor %}
 
 

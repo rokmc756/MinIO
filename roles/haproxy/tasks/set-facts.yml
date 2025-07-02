@@ -40,8 +40,11 @@
   with_items: "{{ ansible_all_ipv4_addresses }}"
   when: "item | ansible.utils.ipaddr( minio_network_range )"
 
+
 # - debug: msg="{{ ( _keepalived.shared_ips | selectattr('fe', 'equalto', 'minio-service') | list | first)['ipaddr'] }}"
 # - debug: msg="{{ ( _keepalived.shared_ips | selectattr('fe', 'equalto', 'minio-console') | list | first)['ipaddr'] }}"
 # - debug: msg="{{ ( _keepalived.shared_ips | selectattr('fe', 'equalto', 'minio-service') | list | first)['ipaddr'] | split('/') | first | }}"
 # - debug: msg="{{ ( _keepalived.shared_ips | selectattr('fe', 'equalto', 'minio-console') | list | first)['ipaddr'] | split('/') | first | }}"
+# - debug: msg="{{ item.ipaddr.split('/')[:-1] | join('/') }}"
+#  loop: "{{ _keepalived.shared_ips }}"
 

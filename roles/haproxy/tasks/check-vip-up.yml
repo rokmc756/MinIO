@@ -1,0 +1,11 @@
+---
+- name: Ping IP Addresses
+  shell: |
+    ping -c 1 -W 1 {{ item.ipaddr.split('/')[:-1] | join('/') }}
+  register: ping_result
+  until: ping_result is succeeded
+  retries: 24
+  delay: 5
+  loop: "{{ _keepalived.shared_ips }}"
+  when: "'master' in keepalived_role"
+

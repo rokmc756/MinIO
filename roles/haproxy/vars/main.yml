@@ -13,10 +13,14 @@ _haproxy:
   stats_user: haadmin
   stats_pass: changeme
   minio:
-    api_frontend_port: 9000
-    console_frontend_port: 443
-    api_backend_port: 9000
-    console_backend_port: 9001
+    api:
+      frontend_port: 9000
+      backend_port: 9000
+      balance: leastconn
+    console:
+      frontend_port: 9001
+      backend_port: 9001
+      balance: leastconn
 
 
 # Variables for Role Keepalived

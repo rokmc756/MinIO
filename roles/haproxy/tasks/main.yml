@@ -6,7 +6,7 @@
 
 - name: Set Facts for Package Name and List and Network Range
   import_tasks: set-facts.yml
-  tags: testfact, install, uninstall, setup, remove, verify, create, delete, start, stop, enable, disable
+  tags: testfact, install, uninstall, setup, remove, verify, create, delete, start, stop, enable, disable, check
 
 
 - name: Stop and Diable Firewalld and SELinux
@@ -25,6 +25,12 @@
   import_tasks: install-haproxy.yml
   tags: setup, install
   when: (( lb is defined and lb == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Check Virtual IP Addresses are Up
+  import_tasks: check-vip-up.yml
+  tags: check, install
+  when: (( vip is defined and vip == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Uninstall HAProxy

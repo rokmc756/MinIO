@@ -13,7 +13,7 @@
     state: absent
 
 
-- name: Keepalived configuration
+- name: Delete Keepalived Configuration
   file:
     dest: /etc/keepalived/keepalived.conf
     state: absent

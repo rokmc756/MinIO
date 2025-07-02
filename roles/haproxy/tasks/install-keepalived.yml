@@ -3,7 +3,6 @@
   package:
     name: keepalived
     state: latest
-  notify: Restart Keepalived
 
 
 - block:
@@ -28,7 +27,6 @@
     mode: 0755
     owner: root
     group: root
-  notify: Restart Keepalived
 
 
 - name: Install Email Notification Script
@@ -38,14 +36,12 @@
     mode: 0755
     owner: root
     group: root
-  notify: Restart Keepalived
 
 
-- name: Keepalived configuration
+- name: Copy Keepalived Configuration
   template:
     src: keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf
-  notify: Restart Keepalived
 
 
 - name: Start Keepalived
