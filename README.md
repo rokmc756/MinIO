@@ -330,6 +330,12 @@ $ make haproxy r=uninstall s=all
 <img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/directpv-architecture.svg" width="80%" height="80%">
 </p>
 
+#### 2) The Architecure of Distributed and DirectPV on Kubernetes
+<p align="center">
+<img src="https://github.com/rokmc756/Kubernetes/blob/main/roles/minio/images/minio-architecture.svg" width="80%" height="80%">
+</p>
+
+
 #### 2) Configure Variables for DirectPV
 ```yaml
 $ cd Kubernetes
