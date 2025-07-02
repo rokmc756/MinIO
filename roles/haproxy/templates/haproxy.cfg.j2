@@ -54,7 +54,7 @@ backend minio_servce_backend
 
 
 frontend minio_console
-    bind *:9001
+    bind *:80
     mode tcp
     option tcplog
     default_backend minio_console_backend
