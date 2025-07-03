@@ -371,7 +371,7 @@ $ make minio r=install s=directpv
 $ make minio r=install s=all
 ```
 
-#### 5) Distributed Distributed MinIO With DirectPV on Kubernetes
+#### 5) Destroy Distributed MinIO With DirectPV on Kubernetes
 ```yaml
 $ cd Kubernetes
 $ make minio r=uninstall s=all

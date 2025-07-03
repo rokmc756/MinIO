@@ -24,7 +24,13 @@
 - name: Install HAProxy
   import_tasks: install-haproxy.yml
   tags: setup, install
-  when: (( lb is defined and lb == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( lb is defined and lb == true and haproxy is defined and haproxy == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+
+
+- name: Install NGINX
+  import_tasks: install-nginx.yml
+  tags: setup, install
+  when: (( lb is defined and lb == true ) and ( nginx is defined and nginx == true )) and inventory_hostname in groups['lb']
 
 
 - name: Check Virtual IP Addresses are Up
@@ -33,10 +39,16 @@
   when: (( vip is defined and vip == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
 
 
+- name: Uninstall NGINX
+  import_tasks: uninstall-nginx.yml
+  tags: remove, uninstall
+  when: (( lb is defined and lb == true ) and ( nginx is defined and nginx == true )) and inventory_hostname in groups['lb']
+
+
 - name: Uninstall HAProxy
   import_tasks: uninstall-haproxy.yml
   tags: remove, delete, uninstall
-  when: (( lb is defined and lb == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( lb is defined and lb == true and haproxy is defined and haproxy == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Uninstall Keepalived

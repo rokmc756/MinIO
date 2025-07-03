@@ -39,10 +39,10 @@
   when: (( minio is defined and minio == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
-- name: Install NGINX
-  import_tasks: install-nginx.yml
-  tags: setup, install
-  when: (( nginx is defined and nginx == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
+#- name: Install NGINX
+#  import_tasks: install-nginx.yml
+#  tags: setup, install
+#  when: (( nginx is defined and nginx == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Uninstall MinIO

@@ -30,7 +30,6 @@
   become: true
   yum: name={{item}} state=absent
   with_items:
-   - bind-utils
    - haproxy
   when: inventory_hostname in groups['lb']
 
@@ -38,7 +37,7 @@
 - name: Delete haproxy.cfg
   become: true
   file:
-    path: /etc/haproxy/haproxy.cfg
+    path: /etc/haproxy
     state: absent
   when: inventory_hostname in groups['lb']
 

@@ -1,14 +1,18 @@
-upstream minio_s3 {
+upstream minio_api {
 
    least_conn;
-   server {{ inventory_hostname }}.{{ _minio.domain }}:9000;
+{% for h in groups['workers'] %}
+   server {{ hostvars[h]['ansible_fqdn'] }}:{{ _haproxy.minio.api.backend_port }};
+{% endfor %}
 
 }
 
 upstream minio_console {
 
    least_conn;
-   server {{ inventory_hostname }}.{{ _minio.domain }}:9001;
+{% for h in groups['workers'] %}
+   server {{ hostvars[h]['ansible_fqdn'] }}:{{ _haproxy.minio.console.backend_port }};
+{% endfor %}
 
 }
 
@@ -17,7 +21,7 @@ server {
    listen       80;
    listen  [::]:80;
 
-   server_name  {{ inventory_hostname }}.{{ _minio.domain }};
+   server_name  {{ ansible_fqdn }};
 
    # Allow special characters in headers
    ignore_invalid_headers off;
@@ -41,7 +45,7 @@ server {
       proxy_set_header Connection "";
       chunked_transfer_encoding off;
 
-      proxy_pass https://minio_s3; # This uses the upstream directive definition to load balance
+      proxy_pass https://minio_api; # This uses the upstream directive definition to load balance
 
    }
 

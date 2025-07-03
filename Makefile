@@ -36,8 +36,8 @@ shutdown:
 		ln -sf ansible-hosts-rk9-snmd ansible-hosts;\
 	elif [ "${*}" = "mnmd" ]; then\
 		ln -sf ansible-hosts-rk9-mnmd ansible-hosts;\
-	elif [ "${*}" = "haproxy" ]; then\
-		ln -sf ansible-hosts-rk9-haproxy ansible-hosts;\
+	elif [ "${*}" = "lb" ]; then\
+		ln -sf ansible-hosts-rk9-lb ansible-hosts;\
 	elif [ "${*}" = "hosts" ]; then\
 		ln -sf ansible-hosts-rk9 ansible-hosts;\
 	else\
