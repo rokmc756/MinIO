@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Configuration
+NGINX_HOST="{{ ansible_fqdn }}"
+NGINX_PORT="80"
+NGINX_URL="http://${NGINX_HOST}:${NGINX_PORT}/"
+
+# Check if nginx process is running
+if ! pidof nginx >/dev/null; then
+    echo "[FAIL] NGINX process not running"
+    exit 1
+fi
+
+# Check HTTPS response (ignoring cert issues with -k)
+curl -skf --max-time 10 "$NGINX_URL" > /dev/null
+if [ $? -ne 0 ]; then
+    # echo "[FAIL] NGINX not responding on HTTPS $NGINX_URL"
+    exit 1
+fi
+
+# echo "[OK] NGINX SSL is healthy on $NGINX_URL"
+exit 0
+

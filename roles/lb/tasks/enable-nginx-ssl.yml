@@ -1,0 +1,37 @@
+---
+- name: Check if SSL Directory Alread Exists
+  stat: path=/etc/nginx/certs
+  register: check_ssl_dir_exists
+
+
+- name: Create SSL Directory
+  file: path={{ item }} state=directory owner=root group=root
+  changed_when: False
+  register: create_ssl_dir
+  with_items:
+    - "/etc/nginx/certs"
+
+
+- name: Create SSL Key
+  shell: |
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/nginx/certs/nginx-{{ item }}-selfsigned.key -out /etc/nginx/certs/nginx-{{ item }}-selfsigned.crt \
+    -subj "/CN={{ item }}.{{ _minio.domain }}" \
+    -addext "subjectAltName=DNS:{{ item }}.{{ _minio.domain }},DNS:192.168.1.90,DNS:192.168.1.199,IP:0.0.0.0,IP:127.0.0.1,IP:{{ hostvars[inventory_hostname][_netdev]['ipv4']['address'] }}"
+  with_items:
+    - "{{ _nginx.minio.api.hostname }}"
+    - "{{ _nginx.minio.console.hostname }}"
+
+
+- name: Change Cert Files Permission
+  file:
+    path: "/etc/nginx/certs/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - "nginx-minio-api-selfsigned.key"
+    - "nginx-minio-api-selfsigned.crt"
+    - "nginx-minio-console-selfsigned.key"
+    - "nginx-minio-console-selfsigned.crt"
+

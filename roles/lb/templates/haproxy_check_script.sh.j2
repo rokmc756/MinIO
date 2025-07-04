@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CSV=`curl "http://{{ _haproxy.webstats_auth }}@{{ _haproxy.webstats_bind | regex_replace('/0\.0\.0\.0/127.0.0.1') }}/;csv" 2>/dev/null`
+CSV=`curl "http://{{ _haproxy.webstats_auth }}@{{ _haproxy.webstats_bind | regex_replace('/0\.0\.0\.0/127.0.0.1') }}/haproxy?stats;csv" 2>/dev/null`
 
 num_frontends=`echo "$CSV"|grep FRONTEND|grep ,OPEN,|wc -l`
 num_backends=`echo "$CSV"|grep BACKEND|grep ,UP,|wc -l`

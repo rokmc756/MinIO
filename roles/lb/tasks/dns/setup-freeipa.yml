@@ -1,0 +1,98 @@
+---
+- name: Login Kerberos
+  shell: |
+    echo "changeme" | kinit admin
+  register: login_krb5
+  ignore_errors: true
+- debug: msg={{ login_krb5 }}
+  when: print_debug == true
+
+
+- name: List KRB5 Users
+  shell: |
+    klist
+  register: list_krb5_users
+  ignore_errors: true
+- debug: msg={{ list_krb5_users }}
+  when: print_debug == true
+
+
+- name: Start SASL/GSSAPI Authentication
+  shell: |
+    ldapsearch -Y GSSAPI '(&(ipaConfigString=enabledService)(ipaConfigString=dnssecKeyMaster))'
+  register: start_ssl_gssapi_auth
+  ignore_errors: true
+- debug: msg={{ start_ssl_gssapi_auth }}
+  when: print_debug == true
+
+
+- name: Find DNS Zones
+  shell: |
+    ipa dnszone-find
+  register: find_dns_zones
+  ignore_errors: true
+- debug: msg={{ find_dns_zones }}
+  when: print_debug == true
+
+
+- name: Add DNS Zones
+  shell: |
+    ipa dnszone-add {{ item.name }}
+  register: add_dns_zones
+  ignore_errors: true
+  with_items: "{{ _dns.zone }}"
+  when: ( zone is defined and zone == true ) or ( okd_all is defined and okd_all == true )
+- debug: msg={{ add_dns_zones }}
+  when: print_debug == true and (( zone is defined and zone == true ) or ( okd_all is defined and okd_all == true ))
+
+# ipa dnszone-mod ipa.example --dnssec=1
+# DNSSEC key master services are not running
+# Run ipactl status on the DNSSEC key master and check that all services are running: All services should be in state RUNNING except
+# ipa-ods-exporter service which is run only on-demand.
+
+
+- name: Check if DNS Zones are Created Correctly
+  shell: |
+    ipa dnszone-show {{ item.name }}
+  register: show_dns_zones
+  ignore_errors: true
+  with_items: "{{ _dns.zone }}"
+  when: ( zone is defined and zone == true ) or ( okd_all is defined and okd_all == true )
+- debug: msg={{ show_dns_zones }}
+  when: print_debug == true and (( zone is defined and zone == true ) or ( okd_all is defined and okd_all == true ))
+
+
+- name: Add DNS A Records
+  shell: |
+    ipa dnsrecord-add {{ item.zone }} {{ item.name }} --a-rec {{ item.value }}
+  register: add_dns_a_records
+  ignore_errors: true
+  with_items: "{{ _dns.resource.forward }}"
+  when: ( record is defined and record == true ) or ( okd_all is defined and okd_all == true )
+- debug: msg={{ add_dns_a_records }}
+  when: print_debug == true and (( record is defined and record == true ) or ( okd_all is defined and okd_all == true ))
+
+
+- name: Add DNS PTR Records
+  shell: |
+    ipa dnsrecord-add {{ item.zone }} {{ item.name }} --ptr-rec {{ item.value }}
+  register: add_dns_ptr_records
+  ignore_errors: true
+  with_items: "{{ _dns.resource.reverse }}"
+  when: ( record is defined and record == true ) or ( okd_all is defined and okd_all == true )
+- debug: msg={{ add_dns_ptr_records }}
+  when: print_debug == true and (( record is defined and record == true ) or ( okd_all is defined and okd_all == true ))
+
+
+- name: Check if DNS Records are Created Correctly
+  shell: |
+    ipa dnsrecord-find {{ item.zone }} --name {{ item.name }}
+  register: find_dns_records
+  ignore_errors: true
+  with_items:
+    - "{{ _dns.resource.forward }}"
+    - "{{ _dns.resource.reverse }}"
+  when: ( record is defined and record == true ) or ( okd_all is defined and okd_all == true )
+- debug: msg={{ find_dns_records }}
+  when: print_debug == true and (( record is defined and record == true ) or ( okd_all is defined and okd_all == true ))
+

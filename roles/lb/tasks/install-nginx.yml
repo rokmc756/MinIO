@@ -1,4 +1,8 @@
 ---
+- name: Enable NGINX SSL
+  import_tasks: enable-nginx-ssl.yml
+
+
 - name: Add NGINX Repo
   yum_repository:
     name: nginx
@@ -14,7 +18,6 @@
   yum: name={{ nginx_package }} validate_certs=no
 
 
-
 - name: Copy NGINX Config
   template:
     src: "{{ item.fn }}"
@@ -22,15 +25,18 @@
   register: copy_nginx_config
   with_items:
     - { fn: "nginx.conf.j2", dest: "/etc/nginx/nginx.conf" }
-    - { fn: "minio.conf.j2", dest: "/etc/nginx/conf.d/minio.conf" }
+    - { fn: "minio.conf.subdomain.j2", dest: "/etc/nginx/conf.d/minio.conf" }
 
 
 - name: Show NGINX Address
-  debug: msg="Minio Cluster Address http://{{ inventory_hostname }}.{{ _minio.domain }}/minio"
+  debug: msg="Minio Cluster Address http://{{ ansible_fqdn }}/minio"
 
 
 - name: Starting NGINX
   service:
     name: nginx
     state: started
+    enabled: true
+
+# https://with-cloud.tistory.com/59
 

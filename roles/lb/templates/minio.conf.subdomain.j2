@@ -1,0 +1,142 @@
+# Load balance MinIO API (S3)
+upstream minio_api {
+
+   least_conn;
+{% for h in groups['workers'] %}
+   server {{ hostvars[h]['ansible_fqdn'] }}:{{ _nginx.minio.api.backend_port }};
+{% endfor %}
+
+}
+
+# Load balance MinIO Console
+upstream minio_console {
+
+   least_conn;
+{% for h in groups['workers'] %}
+   server {{ hostvars[h]['ansible_fqdn'] }}:{{ _nginx.minio.console.backend_port }};
+{% endfor %}
+
+}
+
+server {
+
+    listen 80;
+    server_name {{ _nginx.minio.console.hostname }}.{{ _nginx.minio.console.domain }};
+    return 301 https://$host$request_uri;
+
+}
+
+
+server {
+
+   listen       80;
+   listen  [::]:80;
+
+   # error_log /var/log/nginx/api.log debug;
+   server_name {{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }};
+
+   # Allow special characters in headers
+   ignore_invalid_headers off;
+
+   # Allow any size file to be uploaded.
+   # Set to a value such as 1000m; to restrict file size to a specific value
+   client_max_body_size 0;
+
+   # Disable buffering
+   # proxy_buffering off;
+   # proxy_request_buffering off;
+
+   location / {
+
+      proxy_set_header Host $http_host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      proxy_connect_timeout 300;
+
+      # Default is HTTP/1, keepalive is only enabled in HTTP/1.1
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+      chunked_transfer_encoding off;
+
+      # proxy_cookie_domain api-minio.jtest.pivotal.io .jtest.pivotal.io;
+      proxy_pass https://minio_api; # This uses the upstream directive definition to load balance
+
+   }
+
+}
+
+
+server {
+
+   listen       443 ssl;
+   listen  [::]:443 ssl;
+
+   ssl_certificate /etc/nginx/certs/nginx-minio-console-selfsigned.crt;
+   ssl_certificate_key /etc/nginx/certs/nginx-minio-console-selfsigned.key;
+
+   ssl_protocols       TLSv1.2 TLSv1.3;
+   ssl_ciphers         HIGH:!aNULL:!MD5;
+
+   # error_log /var/log/nginx/console.log debug;
+   server_name {{ _nginx.minio.console.hostname }}.{{ _nginx.minio.console.domain }};
+
+   # Allow special characters in headers
+   ignore_invalid_headers off;
+
+   # Allow any size file to be uploaded.
+   # Set to a value such as 1000m; to restrict file size to a specific value
+   client_max_body_size 0;
+
+   # Disable buffering
+   proxy_buffering off;
+   proxy_request_buffering off;
+
+   location / {
+
+       # Headers
+       proxy_set_header Host $http_host;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       # proxy_set_header X-Forwarded-Proto $scheme;
+       proxy_set_header X-Forwarded-Port https;
+       proxy_set_header X-NginX-Proxy true;
+
+       # This is necessary to pass the correct IP to be hashed
+       real_ip_header X-Real-IP;
+
+       proxy_connect_timeout 300;
+
+       # To Support WebSocket and keepalive
+       proxy_http_version 1.1;
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_set_header Connection "upgrade";
+
+       chunked_transfer_encoding off;
+
+       proxy_pass https://minio_console;  # Trailing slash is important
+
+       # SSL verification for upstream
+       proxy_ssl_verify off;
+
+       # Enables the specified protocols for requests to a proxied HTTPS server.
+       # The TLSv1.3 parameter is used by default since 1.23.4.
+       proxy_ssl_server_name on;
+
+       # Eanble passing of the server name through TLS Server Name Indication extension (SNI, RFC 6066)
+       # when establishing a connection with the proxied HTTPs Server
+       # proxy_ssl_session_reuse on;
+
+       # Prevent caching
+       # add_header Cache-Control "no-store";
+       proxy_buffering off;
+
+       # Timeouts for WebSockets
+       proxy_read_timeout 3600s;
+       proxy_send_timeout 3600s;
+
+   }
+
+}
+

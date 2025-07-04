@@ -9,7 +9,7 @@
 #  when: inventory_hostname in groups['lb']
 
 
-- name: Disable the Systemd HAProxy Service
+- name: Disable the HAProxy Systemd Service
   become: true
   systemd:
     name: haproxy

@@ -1,2 +1,2 @@
 ---
-- debug: msg="{{ Let's Upgrade }}"
+- debug: msg="Upgrade HAProxy"

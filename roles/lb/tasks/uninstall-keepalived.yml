@@ -1,5 +1,5 @@
 ---
-- name: Stop keepalived
+- name: Stop Keepalived
   systemd:
     name: keepalived
     state: stopped
@@ -44,4 +44,8 @@
       state: absent
 
   when: _keepalived.notifications_email | default(False)
+
+
+- name: Clean ARP Cache
+  shell: ip neigh flush dev {{ netdev1 }}
 

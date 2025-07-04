@@ -1,3 +1,4 @@
+---
 # https://blog.dbi-services.com/using-ansible-to-bring-up-a-three-node-patroni-cluster-in-minutes/
 
 - name: Install HAProxy Packages
@@ -42,8 +43,8 @@
 # Try using curl from the HAProxy machine:
 # $ curl -v http://192.168.2.171:9001/minio/health/ready
 
-
 # or for HTTPS:
 # bash
 # $ curl -vk https://192.168.2.171:9001/minio/health/ready
+
 

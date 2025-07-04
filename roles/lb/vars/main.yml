@@ -8,15 +8,40 @@ _haproxy:
   stats_port: 8182
   stats_user: haadmin
   stats_pass: changeme
+  webstats: False
+  webstats_bind: "127.0.0.1:8182"
+  webstats_auth: "haadmin:changeme"
   minio:
     user: minio
     group: minio
     password: changeme
     api:
+      hostname: minio-api
+      domain: jtest.pivotal.io
       frontend_port: 9000
       backend_port: 9000
       balance: leastconn
     console:
+      hostname: minio-console
+      domain: jtest.pivotal.io
+      frontend_port: 9001
+      backend_port: 9001
+      balance: leastconn
+
+
+_nginx:
+  minio:
+    api:
+      hostname: minio-api
+      domain: jtest.pivotal.io
+      listen_port: 80
+      frontend_port: 9000
+      backend_port: 9000
+      balance: leastconn
+    console:
+      hostname: minio-console
+      domain: jtest.pivotal.io
+      listen_port: 443
       frontend_port: 9001
       backend_port: 9001
       balance: leastconn
@@ -33,7 +58,9 @@ _keepalived:
   check_process: "haproxy"
   priority: "100"
   backup_priority: "50"
-  check_script_name: "check_script"
+  # check_script_name: "haproxy_check_script"
+  # check_script_name: "nginx_check_script"
+  check_script_name: "{{ _check_script_name }}"
   unicast_mode: False
   unicast_source: "10.0.0.1"
   unicast_peers:
@@ -43,4 +70,25 @@ _keepalived:
   notification_command_backup: False   # Execute a command when state changes to backup
   notification_command_master: False   # Execute a command when state changes to master
   notification_command_fault:  False   # Execute a command when state changes to fault
+
+
+_dns:
+  zone:
+    - { name: jtest.pivotal.io, type: forward }
+    - { name: 1.168.192.in-addr.arpa, type: reverse }
+  resource:
+    forward:
+      - {  name: "minio-console",          zone: "jtest.pivotal.io",  type: "-a-rec",  value: "192.168.1.179"  }
+      - {  name: "minio-api",              zone: "jtest.pivotal.io",  type: "-a-rec",  value: "192.168.1.180"  }
+      - {  name: "rk9-node01",             zone: "jtest.pivotal.io",  type: "-a-rec",  value: "192.168.1.171"  }
+      - {  name: "rk9-node02",             zone: "jtest.pivotal.io",  type: "-a-rec",  value: "192.168.1.172"  }
+      - {  name: "rk9-node03",             zone: "jtest.pivotal.io",  type: "-a-rec",  value: "192.168.1.173"  }
+      - {  name: "rk9-node04",             zone: "jtest.pivotal.io",  type: "-a-rec",  value: "192.168.1.174"  }
+    reverse:
+      - { name: "179",  zone: 1.168.192.in-addr.arpa,  type: "--ptr-rec", value: "minio-console.jtest.pivotal.io."  }
+      - { name: "180",  zone: 1.168.192.in-addr.arpa,  type: "--ptr-rec", value: "minio-api.jtest.pivotal.io."  }
+      - { name: "171",  zone: 1.168.192.in-addr.arpa,  type: "--ptr-rec", value: "rk9-node01.jtest.pivotal.io."  }
+      - { name: "172",  zone: 1.168.192.in-addr.arpa,  type: "--ptr-rec", value: "rk9-node02.jtest.pivotal.io."  }
+      - { name: "173",  zone: 1.168.192.in-addr.arpa,  type: "--ptr-rec", value: "rk9-node03.jtest.pivotal.io."  }
+      - { name: "174",  zone: 1.168.192.in-addr.arpa,  type: "--ptr-rec", value: "rk9-node04.jtest.pivotal.io."  }
 

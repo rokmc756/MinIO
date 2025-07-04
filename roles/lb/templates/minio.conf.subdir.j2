@@ -18,8 +18,13 @@ upstream minio_console {
 
 server {
 
-   listen       80;
-   listen  [::]:80;
+   listen       443 ssl;
+   listen  [::]:443 ssl;
+
+   include /etc/nginx/conf.d/self-signed.conf;
+
+   ssl_protocols       TLSv1.2 TLSv1.3;
+   ssl_ciphers         HIGH:!aNULL:!MD5;
 
    server_name  {{ ansible_fqdn }};
 
@@ -74,9 +79,11 @@ server {
 
       chunked_transfer_encoding off;
 
-      proxy_pass https://minio_console; # This uses the upstream directive definition to load balance
+      proxy_pass https://minio_console/; # This uses the upstream directive definition to load balance
 
    }
 
 }
+
+# https://www.smashingmagazine.com/2015/09/https-everywhere-with-nginx-varnish-apache/
 
