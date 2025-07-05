@@ -313,16 +313,12 @@ _keepalived:
 
 #### 4) Deploy HAProxy and Keepalived for MinIO MNMD Service
 ```yaml
-$ vi roles/lb/var/main.yml
-~~ snip
-_keepalived:
-~~ snip
-  check_script_name: "haproxy_check_script"
-~~ snip
-
 $ make lb r=disable s=sec
-$ make lb r=setup   s=ha c=haproxy
+$ make lb r=setup   s=ha
 $ make lb r=setup   s=haproxy
+
+or
+$ make lb r=install s=all
 
 # Test MinIO API Port Load Balanced by HAProxy
 $ mc alias set myminio https://minio-api.jtest.pivotal.io:9000 minioadmin changeme --insecure
@@ -330,23 +326,19 @@ $ mc alias set myminio https://minio-api.jtest.pivotal.io:9000 minioadmin change
 
 #### 5) Destroy HAProxy and Keepalived for MinIO MNMD Service
 ```yaml
-$ make haproxy r=remove s=haproxy
-$ make haproxy r=delete s=ha c=haproxy
-$ make haproxy r=enable s=sec
+$ make lb r=remove s=haproxy
+$ make lb r=delete s=ha
+$ make lb r=enable s=sec
+
+or
+$ make lb r=uninstall s=all
 ```
 
-#### 6) Deploy NGINX Reverse Proxy Load Balancer and Keepalived for MinIO MNMD Service
+#### 6) Replace NGINX Reverse Proxy Load Balancer and Keepalived for MinIO MNMD Service
 ```yaml
-$ vi roles/lb/var/main.yml
-~~ snip
-_keepalived:
-~~ snip
-  check_script_name: "nginx_check_script"
-~~ snip
-
+$ make lb r=uninstall s=haproxy
 $ make lb r=disable s=sec
 $ make lb r=setup   s=nginx
-$ make lb r=setup   s=ha c=nginx
 
 # Test MinIO API Port Load Balanced by NGINX Reverse Proxy
 $ mc alias set myminio http://minio-api.jtest.pivotal.io minioadmin changeme --insecure
@@ -354,8 +346,8 @@ $ mc alias set myminio http://minio-api.jtest.pivotal.io minioadmin changeme --i
 
 #### 7) Destroy NGINX Reverse Proxy Load Balancer and Keepalived for MinIO MNMD Service
 ```yaml
-$ make haproxy r=delete s=ha c=nginx
 $ make haproxy r=remove s=nginx
+$ make haproxy r=delete s=ha
 $ make haproxy r=enable s=sec
 ```
 

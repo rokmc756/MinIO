@@ -3,19 +3,19 @@
   import_tasks: enable-nginx-ssl.yml
 
 
-- name: Add NGINX Repo
-  yum_repository:
-    name: nginx
-    description: NGINX YUM Repository
-    baseurl: >
-      http://nginx.org/packages/{{(ansible_distribution == "RedHat") |
-      ternary('rhel', 'centos')}}/{{ ansible_distribution_major_version }}/$basearch/
-    gpgkey: https://nginx.org/keys/nginx_signing.key
-    gpgcheck: yes
+#- name: Add NGINX Repo
+#  yum_repository:
+#    name: nginx
+#    description: NGINX YUM Repository
+#    baseurl: >
+#      http://nginx.org/packages/{{(ansible_distribution == "RedHat") |
+#      ternary('rhel', 'centos')}}/{{ ansible_distribution_major_version }}/$basearch/
+#    gpgkey: https://nginx.org/keys/nginx_signing.key
+#    gpgcheck: yes
 
 
-- name: Installing NGINX
-  yum: name={{ nginx_package }} validate_certs=no
+#- name: Installing NGINX
+#  yum: name={{ nginx_package }} validate_certs=no
 
 
 - name: Copy NGINX Config
@@ -28,8 +28,8 @@
     - { fn: "minio.conf.subdomain.j2", dest: "/etc/nginx/conf.d/minio.conf" }
 
 
-- name: Show NGINX Address
-  debug: msg="Minio Cluster Address http://{{ ansible_fqdn }}/minio"
+- name: Show MinIO Console Address
+  debug: msg="MinIO Console Address http://{{ _nginx.minio.console.hostname }}.{{ _nginx.minio.console.domain }}"
 
 
 - name: Starting NGINX
@@ -38,5 +38,13 @@
     state: started
     enabled: true
 
-# https://with-cloud.tistory.com/59
+
+- name: Install Check Script
+  template:
+    src: "templates/{{ _keepalived.check_script_name }}.sh.j2"
+    dest: "/etc/keepalived/check_script.sh"
+    mode: 0755
+    owner: root
+    group: root
+  notify: Restart Keepalived
 

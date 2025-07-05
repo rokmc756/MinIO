@@ -29,6 +29,7 @@
     state: absent
   with_items:
     - "/etc/nginx/conf.d/default.conf"
+    - "/etc/nginx/conf.d/minio.conf"
     - "/etc/nginx/nginx.conf"
     - "/etc/nginx/certs"
 

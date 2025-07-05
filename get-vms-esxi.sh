@@ -12,5 +12,8 @@ esxi_host_user="root"
 esxi_host_pass="Changeme34#$"
 
 # vim-cmd vmsvc/power.getstate <vmid>
-sshpass -p "$esxi_host_pass" ssh -o StrictHostKeyChecking=no $esxi_host_user@$esxi_host_addr "vim-cmd vmsvc/getallvms | awk '{print \$2}'"
+# sshpass -p "$esxi_host_pass" ssh -o StrictHostKeyChecking=no $esxi_host_user@$esxi_host_addr "vim-cmd vmsvc/getallvms"
+# sshpass -p "$esxi_host_pass" ssh -o StrictHostKeyChecking=no $esxi_host_user@$esxi_host_addr "vim-cmd vmsvc/getallvms | awk '{print \$2}'"
+
+sshpass -p "$esxi_host_pass" ssh -o StrictHostKeyChecking=no $esxi_host_user@$esxi_host_addr "for id in \$(vim-cmd vmsvc/getallvms | awk '{print \$1}'); do vim-cmd vmsvc/power.getstate \$id; done"
 

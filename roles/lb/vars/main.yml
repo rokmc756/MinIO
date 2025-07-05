@@ -58,8 +58,7 @@ _keepalived:
   check_process: "haproxy"
   priority: "100"
   backup_priority: "50"
-  # check_script_name: "haproxy_check_script"
-  # check_script_name: "nginx_check_script"
+  default_check_script_name: "check_script"
   check_script_name: "{{ _check_script_name }}"
   unicast_mode: False
   unicast_source: "10.0.0.1"

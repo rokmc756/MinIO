@@ -12,22 +12,22 @@
 - name: Stop and Diable Firewalld and SELinux
   import_tasks: disable-security.yml
   tags: disable, stop, install, setup
-  when: (( sec is defined and sec == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( sec is defined and sec == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Install Keepalived
   import_tasks: install-keepalived.yml
   tags: setup, install
-  when: (( ha is defined and ha == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( ha is defined and ha == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Install HAProxy
   import_tasks: install-haproxy.yml
   tags: setup, install
-  when: (( haproxy is defined and haproxy == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( haproxy is defined and haproxy == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
-- name: Install NGINX
+- name: Install NGINX Reverse Proxy
   import_tasks: install-nginx.yml
   tags: setup, install
   when: ( nginx is defined and nginx == true ) and inventory_hostname in groups['lb']
@@ -36,7 +36,7 @@
 - name: Check Virtual IP Addresses are Up
   import_tasks: check-vip-up.yml
   tags: check, install
-  when: (( vip is defined and vip == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( vip is defined and vip == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Uninstall NGINX
@@ -48,31 +48,31 @@
 - name: Uninstall HAProxy
   import_tasks: uninstall-haproxy.yml
   tags: remove, delete, uninstall
-  when: (( haproxy is defined and haproxy == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( haproxy is defined and haproxy == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Uninstall Keepalived
   import_tasks: uninstall-keepalived.yml
   tags: remove, delete, uninstall
-  when: (( ha is defined and ha == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( ha is defined and ha == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Start and Enable Firewalld and SELinux
   import_tasks: enable-security.yml
   tags: enable, start, uninstall, remove
-  when: (( sec is defined and sec == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( sec is defined and sec == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Upgrade HAProxy
   import_tasks: upgrade-haproxy.yml
   tags: upgrade
-  when: (( ha is defined and ha == true ) or ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( ha is defined and ha == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 - name: Upgrade Keepalived
   import_tasks: upgrade-haproxy.yml
   tags: upgrade
-  when: (( ha is defined and lb == true ) ha ( haproxy_all is defined and haproxy_all == true )) and inventory_hostname in groups['lb']
+  when: (( ha is defined and lb == true ) ha ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
 #- name: Setup DNS Zone and Record

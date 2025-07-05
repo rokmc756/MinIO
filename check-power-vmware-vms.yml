@@ -1,0 +1,17 @@
+- hosts: localhost
+
+  tasks:
+    - name: Check VM Power Status
+      vmware.vmware_rest.vcenter_vm_power_info:
+        hostname: "{{ _vmware.esxi_hostname }}"
+        username: "{{ _vmware.esxi_username }}"
+        password: "{{ _vmware.esxi_password }}"
+        name: "{{ item }}"  # Replace with the name of your VM
+      register: vm_power_info
+      loop: "{{ _minio.vms.rk9 }}"
+
+
+    - name: Print VM power state
+      debug:
+        msg: "VM {{ vm_power_info.vm_name }} is currently {{ vm_power_info.power_state }}"
+

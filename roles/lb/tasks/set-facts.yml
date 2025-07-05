@@ -44,14 +44,13 @@
 - name: Define Fact of HAProxy Check Script Name
   set_fact:
     _check_script_name: "haproxy_check_script"
-  when: ( haproxy is defined and haproxy == true ) and ( ha is defined and ha == true )
+  when: ( ha is defined and ha == true ) or ( haproxy is defined and haproxy == true ) or ( lb_all is defined and lb_all == true )
 
 
 - name: Define Fact of NGINX Check Script Name
   set_fact:
     _check_script_name: "nginx_check_script"
-  when: ( nginx is defined and nginx == true ) and ( ha is defined and ha == true )
-
+  when: ( nginx is defined and nginx == true )
 
 
 # - debug: msg="{{ ( _keepalived.shared_ips | selectattr('fe', 'equalto', 'minio-service') | list | first)['ipaddr'] }}"

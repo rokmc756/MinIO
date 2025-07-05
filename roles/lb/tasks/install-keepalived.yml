@@ -20,10 +20,10 @@
   when: _keepalived.notifications_email | default(False)
 
 
-- name: Install Check Script
+- name: Copy Check Script
   template:
     src: "templates/{{ _keepalived.check_script_name }}.sh.j2"
-    dest: "/etc/keepalived/{{ _keepalived.check_script_name }}.sh"
+    dest: "/etc/keepalived/check_script.sh"
     mode: 0755
     owner: root
     group: root

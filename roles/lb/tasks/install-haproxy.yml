@@ -6,7 +6,7 @@
   with_items:
    - bind-utils
    - haproxy
-  when: inventory_hostname in groups['lb']
+  # when: inventory_hostname in groups['lb']
 
 
 #- name: Set SELinux Context
@@ -22,13 +22,13 @@
     owner: root
     group: root
     mode: 0600
-  when: inventory_hostname in groups['lb']
+  # when: inventory_hostname in groups['lb']
 
 
 - name: Force Systemd to Reload Configs
   systemd:
     daemon_reload: yes
-  when: inventory_hostname in groups['lb']
+  # when: inventory_hostname in groups['lb']
 
 
 - name: Enable the Systemd HAProxy Service
@@ -36,8 +36,17 @@
     name: haproxy
     enabled: yes
     state: restarted
-  when: inventory_hostname in groups['lb']
 
+
+- name: Install Check Script
+  template:
+    src: "templates/{{ _keepalived.check_script_name }}.sh.j2"
+    dest: "/etc/keepalived/check_script.sh"
+    mode: 0755
+    owner: root
+    group: root
+  notify: Restart Keepalived
+  # when: inventory_hostname in groups['lb']
 
 # To Debug Further
 # Try using curl from the HAProxy machine:

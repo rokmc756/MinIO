@@ -4,7 +4,7 @@ global_defs {
     script_user root
 }
 vrrp_script chk_service {           # Requires keepalived-1.1.13
-        script /etc/keepalived/{{ _keepalived.check_script_name }}.sh
+        script /etc/keepalived/{{ _keepalived.default_check_script_name }}.sh
         interval 2                      # check every 2 seconds
 }
 vrrp_instance VI_1 {

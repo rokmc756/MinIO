@@ -27,8 +27,13 @@
 
 - name: Uninstall Check Script
   file:
-    path: "/etc/keepalived/{{ _keepalived.check_script_name }}.sh"
+    path: "{{ item.dir }}/{{ item.fn }}"
     state: absent
+  with_items:
+    - { dir: "/etc/keepalived", fn: "haproxy_check_script.sh" }
+    - { dir: "/etc/keepalived", fn: "nginx_check_script.sh" }
+    - { dir: "/etc/keepalived", fn: "check_script.sh" }
+    - { dir: "/etc/keepalived", fn: "keepalived.conf.rpmsave" }
 
 
 - block:
