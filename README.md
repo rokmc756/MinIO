@@ -365,6 +365,7 @@ $ make haproxy r=enable s=sec
 
 #### 3) Configure Variables for DirectPV
 ```yaml
+$ git clone https://github.com/rokmc756/Kubernetes
 $ cd Kubernetes
 $ vi roles/minio/var/main.yml
 ---
@@ -386,6 +387,7 @@ _directpv:
 
 #### 4) Deploy Distributed MinIO With DirectPV on Kubernetes
 ```yaml
+$ git clone https://github.com/rokmc756/Kubernetes
 $ cd Kubernetes
 $ make minio r=install s=directpv
 $ make minio r=install s=all
@@ -393,6 +395,7 @@ $ make minio r=install s=all
 
 #### 5) Destroy Distributed MinIO With DirectPV on Kubernetes
 ```yaml
+$ git clone https://github.com/rokmc756/Kubernetes
 $ cd Kubernetes
 $ make minio r=uninstall s=all
 $ make minio r=uninstall s=directpv
