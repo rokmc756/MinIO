@@ -69,3 +69,10 @@
 # 20250416181326.0.0-1 - OK
 # 20250521015954.0.0-1 - OK
 ```
+
+### Performance Test Require License
+```
+$ mcli support perf myminio
+mcli: <ERROR>  Please register the cluster first by running 'mc license register myminio'
+```
+

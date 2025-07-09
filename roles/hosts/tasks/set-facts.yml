@@ -1,6 +1,6 @@
 ---
 # https://serverfault.com/questions/1040246/how-to-select-network-interface-given-ip-address-in-ansible-across-debian-and-fr
-- name: Get interface name from prefix of IP Addresses provided for Weka Nodes
+- name: Get interface name from prefix of IP Addresses provided
   set_fact:
     netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr0 ) | map(attribute='device') | first }}"
     netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr1 ) | map(attribute='device') | first }}"

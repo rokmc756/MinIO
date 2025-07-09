@@ -48,7 +48,6 @@ _minio:
   access_key: minioadmin
   secret_key: changeme
 
-
 _mc:
   release_date: 20250521015954.0.0-1
 

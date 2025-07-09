@@ -346,9 +346,9 @@ $ mc alias set myminio http://minio-api.jtest.pivotal.io minioadmin changeme --i
 
 #### 7) Destroy NGINX Reverse Proxy Load Balancer and Keepalived for MinIO MNMD Service
 ```yaml
-$ make haproxy r=remove s=nginx
-$ make haproxy r=delete s=ha
-$ make haproxy r=enable s=sec
+$ make lb r=remove s=nginx
+$ make lb r=delete s=ha
+$ make lb r=enable s=sec
 ```
 
 ## For Distributed MinIO with DirectPV on Kubernetes
