@@ -48,42 +48,7 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 ~~ snip
 ```
 
-## For MinIO SNMD ( Single Node Multi Devices )
-#### 1) The Architecure of MinIO SNMD
-```
-            +--------------------+
-            |     S3 Client      |
-            +--------------------+
-                       |
-                       v
-      https://rk9-node01.jtest.pivotal.io
-                       |
-                       v
-    +------------------------------------+
-    |             MinIO Server           |
-    |            ( Single Node )         |
-    +------------------------------------+
-       |          |         |         |
-       v          v         v         v
-   +-------+  +-------+ +-------+ +-------+
-   | Disk1 |  | Disk2 | | Disk3 | | Disk4 |  (XFS/ext4/ZFS)
-   +-------+  +-------+ +-------+ +-------+
-
-<--- All drives participate in erasure coding --->
-```
-
-#### 2) Configure Inventory for MinIO SNMD 
-```yaml
-[all:vars]
-ssh_key_filename="id_rsa"
-remote_machine_username="jomoon"
-remote_machine_password="changeme"
-
-[workers]
-rk9-node01 ansible_ssh_host=192.168.2.171
-```
-
-#### 3) Configure Variables
+## Configure Global Variables
 ```yaml
 $ vi group_vars/all.yml
 ---
@@ -135,7 +100,42 @@ _certgen:
 ~~ snip
 ```
 
-#### 4) Deploy MinIO SNMD
+## For MinIO SNMD ( Single Node Multi Devices )
+#### 1) The Architecure of MinIO SNMD
+```
+            +--------------------+
+            |     S3 Client      |
+            +--------------------+
+                       |
+                       v
+      https://rk9-node01.jtest.pivotal.io
+                       |
+                       v
+    +------------------------------------+
+    |             MinIO Server           |
+    |            ( Single Node )         |
+    +------------------------------------+
+       |          |         |         |
+       v          v         v         v
+   +-------+  +-------+ +-------+ +-------+
+   | Disk1 |  | Disk2 | | Disk3 | | Disk4 |  (XFS/ext4/ZFS)
+   +-------+  +-------+ +-------+ +-------+
+
+<--- All drives participate in erasure coding --->
+```
+
+#### 2) Configure Inventory for MinIO SNMD 
+```yaml
+[all:vars]
+ssh_key_filename="id_rsa"
+remote_machine_username="jomoon"
+remote_machine_password="changeme"
+
+[workers]
+rk9-node01 ansible_ssh_host=192.168.2.171
+```
+
+#### 3) Deploy MinIO SNMD
 ```yaml
 $ make snmd r=disable s=firewall
 $ make snmd r=create s=dev
@@ -147,7 +147,7 @@ or
 $ make snmd r=install s=all
 ```
 
-#### 5) Destroy MinIO SNMD
+#### 4) Destroy MinIO SNMD
 ```yaml
 $ make snmd r=remove s=minio
 $ make snmd r=delete s=dev
@@ -190,7 +190,7 @@ rk9-node03 ansible_ssh_host=192.168.2.173
 rk9-node04 ansible_ssh_host=192.168.2.174
 ```
 
-#### 4) Deploy MinIO MNMD
+#### 3) Deploy MinIO MNMD
 ```yaml
 $ make mnmd r=disable s=firewall
 $ make mnmd r=create s=dev
@@ -203,7 +203,7 @@ or
 $ make mnmd r=install s=all
 ```
 
-#### 5) Destroy MinIO MNMD
+#### 4) Destroy MinIO MNMD
 ```yaml
 $ make mnmd r=remove s=minio
 $ make mnmd r=delete s=dev
