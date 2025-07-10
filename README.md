@@ -6,8 +6,8 @@ engineer. I just want to spend less time for it.
 If you are working with MinIO such as Developer, Administrator, Field Engineer or Storage Administrator you could also utilize it very conviently as saving time.
 
 <p align="center">
-<table width="100%" height="100%">
-<tr><td>
+<table>
+<tr><td width=100% heigh=100%>
 <img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio-architecture.webp" width="100%" height="100%">
 </td><tr>
 </table>
