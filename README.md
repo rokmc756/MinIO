@@ -6,7 +6,7 @@ engineer. I just want to spend less time for it.
 If you are working with MinIO such as Developer, Administrator, Field Engineer or Storage Administrator you could also utilize it very conviently as saving time.
 
 <p align="center">
-<img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio-architecture.webp" width="80%" height="80%">
+<img src="https://github.com/rokmc756/MinIO/blob/main/roles/mnmd/images/minio-architecture.webp" width="100%" height="100%">
 </p>
 
 ## Supported MiniIO Versions
@@ -355,12 +355,12 @@ $ make lb r=enable s=sec
 ## For Distributed MinIO with DirectPV on Kubernetes
 #### 1) The Architecure o DirectPV on Kubernetes
 <p align="center">
-<img src="https://raw.githubusercontent.com/rokmc756/MinIO/refs/heads/main/roles/mnmd/images/directpv-architecture.svg" width="80%" height="80%">
+<img src="https://raw.githubusercontent.com/rokmc756/MinIO/refs/heads/main/roles/mnmd/images/directpv-architecture.svg" width="100%" height="100%">
 </p>
 
 #### 2) The Architecure of Distributed MinIO and DirectPV on Kubernetes
 <p align="center">
-<img src="https://raw.githubusercontent.com/rokmc756/MinIO/refs/heads/main/roles/mnmd/images/minio-directpv-architecture.webp" width="80%" height="80%">
+<img src="https://raw.githubusercontent.com/rokmc756/MinIO/refs/heads/main/roles/mnmd/images/minio-directpv-architecture.webp" width="100%" height="100%">
 </p>
 
 
