@@ -48,6 +48,31 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 ~~ snip
 ```
 
+## Download All MinIO Softwares
+```yaml
+$ vi download-vars.yml
+---
+_mc:
+  release_date: 2025-05-21T01-59-54Z
+  patch_version: 1
+  download_url: https://dl.minio.io/client/mc/release/linux-amd64
+  download_archive_url: https://dl.minio.io/client/mc/release/linux-amd64/archive
+
+~~ snip
+
+_minio:
+  release_date: 20250422221226.0.0  # Last Release to Support Full Feature which is Not Community Version
+  bin_release_date: 2025-04-22T22-12-26Z
+  patch_version: 1
+  download_url: https://dl.minio.io/server/minio/release/linux-amd64/archive
+  arch_type: x86_64
+  bin_type: rpm # bin
+~~ snip
+
+
+$ make download
+```
+
 ## Configure Global Variables
 ```yaml
 $ vi group_vars/all.yml
