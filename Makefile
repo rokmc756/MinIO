@@ -32,6 +32,10 @@ shutdown:
 check-power:
 	@ansible-playbook -i ${ANSIBLE_HOST_CONFIG} --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} check-power-vmware-vms.yml ${ROLE_CONFIG}
 
+download:
+	@ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} download-minio.yml -e "@download-vars.yml" --tags="download"
+
+
 # For All Roles
 %:
 	@if [ "${*}" = "snmd" ]; then\

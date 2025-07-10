@@ -1,0 +1,28 @@
+---
+- name: Check if MinIO Client Binary Already Exists
+  stat: path={{ _mcli.bin }}
+  register: mc_bin_exists
+
+
+- name: Copy MinIO Client Binary from Local Directory
+  copy: src={{ mcli_pkg_name }} dest=/tmp/{{ mcli_pkg_name }} mode=0644 owner=root group=root
+  register: mc_local_copy
+  when: mc_bin_exists.stat.exists == false and _mcli.download == false
+
+
+- name: Download MinIO Client Package
+  get_url:
+    url: "{{ mcli.download_archive_url }}"
+    dest: "/tmp/{{ mcli_pkg_name }}"
+    mode: 0644
+    checksum: "{{ _mcli.checksum | d(omit) }}"
+  when: ( _mcli.download_archive_url.endswith('mcli') or _mcli.download_archive_url.endswith('Z') ) and ( mc_bin_exists.stat.exists == false and _mcli.download == true )
+
+
+- name: Install MinIO Client Package from Local Directory
+  package:
+    name: /tmp/{{ mcli_pkg_name }}
+    state: present
+    disable_gpg_check: yes
+  when: mc_bin_exists.stat.exists == false
+

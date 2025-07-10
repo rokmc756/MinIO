@@ -1,10 +1,16 @@
 ---
-_certgen:
-  download_url: https://github.com/minio/certgen/releases/download
-  major_version: 1
-  minor_version: 3
-  patch_version: 0
-  os: linux
-  arch: amd64
-  # /v{{ certgen_version }}/certgen-{{ _certgen.os }}-{{ _certgen.arch }}
+_mnmd:
+  proto: https
+
+
+_nginx:
+  user: nginx
+  group: nginx
+  package: nginx
+  worker_processes: "{{ ( ansible_processor_vcpus is defined) | ternary( ansible_processor_vcpus, 'auto') }}"
+  worker_connections: 4096
+  nodes: []
+  max_body_size: 128m
+  http_port: 80
+  https_port: 443
 

@@ -1,0 +1,77 @@
+---
+- name: Check if MinIO Client Binary Already Exists
+  stat: path={{ _mc.bin }}
+  register: check_mc_bin
+
+
+- name: Copy MinIO Client Binary from Local Directory
+  copy: src=mc.RELEASE.{{ _mc.release_date }}.zip dest=/tmp/mc.RELEASE.{{ _mc.release_date }}.zip mode=0644 owner=root group=root
+  register: mc_local_copy
+  when: check_mc_bin.stat.exists == false and _mc.download == false
+
+
+- name: Unarchive MinIO Client
+  unarchive:
+    src: "/tmp/mc.RELEASE.{{ _mc.release_date }}.zip"
+    dest: "/usr/local/bin/"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+    remote_src: yes
+  register: mc_unarchive
+  when: check_mc_bin.stat.exists == false and _mc.download == false
+
+
+- name: Download MinIO Client
+  get_url:
+    url: "{{ _mc.download_url }}/{{ mc_bin }}"
+    dest: "{{ _mc.bin_dir }}"
+    checksum: "{{ _mc.checksum | d(omit) }}"
+    mode: 0755
+    timeout: 20
+  when: ( _mc.download_url.endswith('mc') or ( _mc.download_url + '/' + mc_bin ).endswith('Z') ) and ( check_mc_bin.stat.exists == false and _mc.download == true )
+
+
+- name: Install Unzip
+  yum: name=unzip
+  when: _mc.download_url.endswith('zip') and ( check_mc_bin.stat.exists == false and _mc.download == false )
+
+
+- name: Unarchive MinIO Client
+  unarchive:
+    url: "{{ _mc.download_url }}/{{ mc_bin }}"
+    dest: "{{ _mc.bin | dirname }}"
+    remote_src: "{{ _mc.download_url.startswith('http') }}"
+    mode: 0755
+  when: _mc.download_url.endswith('zip') and ( check_mc_bin.stat.exists == false and _mc.download == false )
+
+
+- name: Create Symbolic link
+  file:
+    src: "/usr/local/bin/mc.RELEASE.{{ _mc.release_date }}"
+    dest: "/usr/local/bin/mc"
+    state: link
+  when: mc_bin.endswith('Z') and check_mc_bin.stat.exists == false
+
+
+- name: Set MinIO Service Alias
+  shell: |
+    {{ _mc.bin }} alias set myminio {{ _mc.config_opts.hosts.minio.url }} {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
+  register: set_minio_svc_alias
+  args:
+    creates: "{{ _mc.config }}"
+  when: inventory_hostname in groups['workers']
+- debug: msg="{{ set_minio_svc_alias }}"
+  when: inventory_hostname in groups['workers']
+
+
+- name: Set MinIO Service Alias
+  shell: |
+    {{ _mc.bin }} alias set myminio http://minio-api.jtest.pivotal.io {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
+  register: set_minio_svc_alias
+  args:
+    creates: "{{ _mc.config }}"
+  when: inventory_hostname not in groups['workers']
+- debug: msg="{{ set_minio_svc_alias }}"
+  when: inventory_hostname not in groups['workers']
+

@@ -11,10 +11,10 @@
   yum: name={{ item }} state=absent
   with_items:
     - "nginx-core"
-    - "{{ nginx_package }}"
+    - "{{ _nginx.package }}"
 
 
-- name: Remove NGINX Repository ( and clean up left-over metadata )
+- name: Remove NGINX Repository ( And Clean Up Left-Over Metadata )
   yum_repository:
     name: epel
     file: nginx_repo
@@ -42,7 +42,6 @@
   yum: name={{ item }} state=absent
   with_items:
     - minio
-    - mcli
 
 
 - name: Force Systemd to Reload Configs

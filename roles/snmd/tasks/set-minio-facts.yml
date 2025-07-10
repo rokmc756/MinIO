@@ -34,10 +34,26 @@
     minio_network_range: "{{ hostvars[inventory_hostname][_netdev]['ipv4']['network'] }}/{{ ( hostvars[inventory_hostname][_netdev]['ipv4']['address'] + '/' + hostvars[inventory_hostname][_netdev]['ipv4']['netmask'] ) | ansible.utils.ipaddr('prefix') }}"
 
 
-- name: Define Fact of Minio Package
+- name: Define MinIO Software Facts for Red Hat or CentOS or Rocky
   set_fact:
-    minio_pkg_name: "minio-{{ _minio.release_date }}.x86_64.rpm"
-    mcli_pkg_name: "mcli-{{ _mc.release_date }}.x86_64.rpm"
+    minio_pkg_name: "minio-{{ _minio.release_date }}-{{ _minio.patch_version }}.x86_64.rpm"
+  when: ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Rocky']
+
+
+- name: Define MinIO Software Facts for Ubuntu or Debian
+  set_fact:
+    minio_pkg_name: "minio_{{ _minio.release_date }}_amd64.deb"
+  when: ansible_facts['distribution'] in [ 'Debian', 'Ubuntu']
+
+
+- name: Define MinIO Facts
+  set_fact:
+    minio_bin: "minio.RELEASE.{{ _minio.bin_release_date }}"
+    certgen_version: "{{ _certgen.major_version }}.{{ _certgen.minor_version }}.{{ _certgen.patch_version }}"
+    certgen_file_name: "certgen-{{ _certgen.os }}-{{ _certgen.arch }}"
+    last_host_num: "{{ groups['workers']|length }}"
+    hostname_prefix: "{{ inventory_hostname[:-1] }}"
+    data_prefix: "{{ _minio.volumes | map(attribute='dir') | first | regex_replace('^(.+)([0-9]{1})$','\\1') }}"
 
 
 - name: Define Fact of Specific IP Address Range
@@ -45,4 +61,8 @@
     minio_ip_addr_range: "{{ item }}"
   with_items: "{{ ansible_all_ipv4_addresses }}"
   when: "item | ansible.utils.ipaddr( minio_network_range )"
+
+
+- import_tasks: ext/check-nvme-list.yml
+
 

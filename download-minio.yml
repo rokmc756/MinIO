@@ -1,17 +1,46 @@
+---
 - hosts: localhost
+  vars:
+    minio_bin: "minio.RELEASE.{{ _minio.bin_release_date }}"
+    minio_rpm_pkg: "minio-{{ _minio.release_date }}-{{ _minio.patch_version }}.x86_64.rpm"
+    minio_deb_pkg: "minio_{{ _minio.release_date }}_amd64.deb"
+    mcli_rpm_pkg: "mcli-{{ _mcli.release_date }}-{{ _mcli.patch_version }}.x86_64.rpm"
+    mcli_deb_pkg: "mcli_{{ _mcli.release_date }}_amd64.deb"
+    mc_bin: "mc.RELEASE.{{ _mc.release_date }}"
+    warp_pkg: "warp_Linux_x86_64.rpm"
+    certgen_bin: "certgen-{{ _certgen.os }}-{{ _certgen.arch }}"
+    certgen_ver: "{{ _certgen.major_version }}.{{ _certgen.minor_version }}.{{ _certgen.patch_version }}"
+    warp_ver: "{{ _warp.major_version }}.{{ _warp.minor_version }}.{{ _warp.patch_version }}"
+    local_dir: "/home/jomoon/MinIO"
   tasks:
-    - name: Download AIStor Software Binaries and Save the into Ansible Files Directory
+    - name: Download MinIO Software Binaries and Save the into Ansible Files Directory
       become: true
-      vars:
-        aistor_download_version: "{{ _aistor.major_version }}.{{ _aistor.minor_version }}.{{ _aistor.patch_version }}"
-        aistor_rpm_package: "minio.rpm"
-        aistor_deb_package: "minio.deb"
-        local_dir: "/home/jomoon/AIStor"
       get_url:
         url: "{{ item.url }}"
         dest: "{{ item.dest }}"
+        validate_certs: no
       with_items:
-        - { url: "{{ _aistor.download_url }}/{{ aistor_rpm_package }}", dest: "{{ local_dir }}/roles/mnmd/files/{{ aistor_rpm_package }}" }
-        - { url: "{{ _aistor.download_url }}/{{ aistor_deb_package }}", dest: "{{ local_dir }}/roles/mnmd/files/{{ aistor_deb_package }}" }
+        - { url: "{{ _minio.download_url }}/{{ minio_bin }}",      dest: "{{ local_dir }}/roles/mnmd/files/{{ minio_bin }}" }
+        - { url: "{{ _minio.download_url }}/{{ minio_rpm_pkg }}",  dest: "{{ local_dir }}/roles/mnmd/files/{{ minio_rpm_pkg }}" }
+        - { url: "{{ _minio.download_url }}/{{ minio_deb_pkg }}",  dest: "{{ local_dir }}/roles/mnmd/files/{{ minio_deb_pkg }}" }
+        - { url: "{{ _mcli.download_url }}/{{ mcli_rpm_pkg }}",    dest: "{{ local_dir }}/roles/mnmd/files/{{ mcli_rpm_pkg }}" }
+        - { url: "{{ _mcli.download_url }}/{{ mcli_deb_pkg }}",    dest: "{{ local_dir }}/roles/mnmd/files/{{ mcli_deb_pkg }}" }
+        - { url: "{{ _mc.download_url }}/{{ mc_bin }}",            dest: "{{ local_dir }}/roles/mnmd/files/{{ mc_bin }}" }
+        - { url: "{{ _certgen.download_url }}/v{{ certgen_ver }}/{{ certgen_bin }}",  dest: "{{ local_dir }}/roles/mnmd/files/{{ certgen_bin }}" }
+        - { url: "{{ _warp.download_url }}/v{{ warp_ver }}/{{ warp_pkg }}",  dest: "{{ local_dir }}/roles/mnmd/files/{{ warp_pkg }}" }
+      tags: download
+
+
+    - name: Compress MC Binary File by Zip
+      become: true
+      archive:
+        path: "{{ local_dir }}/roles/mnmd/files/{{ item.bin }}"
+        dest: "{{ local_dir }}/roles/mnmd/files/{{ item.bin }}.{{ item.format }}"
+        format: zip
+        remove: true
+      with_items:
+        - { bin: "{{ minio_bin }}", format: "zip" }
+        - { bin: "{{ mc_bin }}", format: "zip" }
+        - { bin: "{{ certgen_bin }}", format: "zip" }
       tags: download
 

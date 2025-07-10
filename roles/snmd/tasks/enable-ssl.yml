@@ -4,8 +4,8 @@
     path: "{{ item }}"
     state: directory
     mode: 0755
-    owner: "{{ minio_user }}"
-    group: "{{ minio_group }}"
+    owner: "{{ _minio.user }}"
+    group: "{{ _minio.group }}"
   register: create_ssl_dir
   with_items:
     - "{{ _ssl.ssl_dir }}"
@@ -30,20 +30,21 @@
   file:
     path: "{{ _ssl.ssl_dir }}/{{ item }}"
     state: file
-    owner: "{{ minio_user }}"
-    group: "{{ minio_group }}"
+    owner: "{{ _minio.user }}"
+    group: "{{ _minio.group }}"
     mode: "0600"
   with_items:
     - "private.key"
     - "public.crt"
+  when: _snmd.proto is defined and _snmd.proto == "https"
 
 
 - name: Copy File with Owner and Permissions
   copy:
     src: "{{ item.org }}"
     dest: "{{ item.dest }}"
-    owner: "{{ minio_user }}"
-    group: "{{ minio_group }}"
+    owner: "{{ _minio.user }}"
+    group: "{{ _minio.group }}"
     mode: 0644
     remote_src: yes
   with_items:

@@ -1,16 +1,6 @@
 ---
-- name: Check Number of Drives in Cluster
-  assert:
-    that:
-      - minio_volumes|count >= 4
-      - minio_volumes|count <= 16
-    msg: Minio cluster work with minimum 4 and maximum 16 drives
-  when:
-    - minio_volumes|count > 1
-
-
 - name: Check if MinIO Binary Already Exists
-  stat: path={{ minio_bin }}
+  stat: path={{ _minio.bin }}
   register: minio_bin_exists
 - debug: msg={{ minio_bin_exists }}
 
@@ -18,16 +8,16 @@
 - name: Copy MinIO Package from Local Directory
   copy: src={{ minio_pkg_name }} dest=/tmp/{{ minio_pkg_name }} mode=0644 owner=root group=root
   register: minio_local_copy
-  when: minio_bin_exists.stat.exists == false and minio_download == false
+  when: minio_bin_exists.stat.exists == false and _minio.download == false
 
 
 - name: Download MinIO Server Package
   get_url:
-    url: "{{ minio_server_archive_url }}"
+    url: "{{ _minio.download_url }}/{{ minio_pkg_name }}"
     dest: "/tmp/{{ minio_pkg_name }}"
     mode: 0644
-    checksum: "{{ minio_server_checksum | d(omit) }}"
-  when: ( minio_server_archive_url.endswith('minio') or minio_server_archive_url.endswith('Z') ) and ( minio_bin_exists.stat.exists == false and minio_download == true )
+    checksum: "{{ _minio.server_checksum | d(omit) }}"
+  when: ( _minio.download_url.endswith('minio') or ( _minio.download_url + '/' + minio_pkg_name ).endswith('rpm') ) and ( minio_bin_exists.stat.exists == false and _minio.download == true )
 
 
 - name: Install MinIO Package from Local Directory

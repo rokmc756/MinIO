@@ -1,13 +1,24 @@
 ---
+- name: Waiting for Server to Come Back After Restart
+  local_action: wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=22 state=started delay=10 timeout=300 connect_timeout=300 search_regex=OpenSSH
+  become: no
+
+
+- name: Restart System
+  shell: ( /bin/sleep 5 ; /sbin/shutdown -r now "Ansible Updates Triggered" ) &
+  async: 30
+  poll: 0
+
+
 - name: Restart MinIO Service
-  systemd: name={{ minio_service }} state=restarted daemon_reload=yes
+  systemd: name={{ _minio.service }} state=restarted daemon_reload=yes
   listen: Restart MinIO
 
 
 - name: Wait Until MinIO Started
   wait_for:
     host: "{{ ansible_default_ipv4.address | default('localhost') }}"
-    port: "{{ minio_port }}"
+    port: "{{ _minio.api_port }}"
     delay: 10
   listen: Restart MinIO
 

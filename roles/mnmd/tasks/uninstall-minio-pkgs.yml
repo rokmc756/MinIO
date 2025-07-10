@@ -1,0 +1,33 @@
+---
+- name: Stopping MinIO
+  systemd:
+    name: minio
+    state: stopped
+  ignore_errors: true
+
+
+- name: Uninstall MinIO Package
+  yum: name={{ item }} state=absent
+  with_items:
+    - minio
+  when: _minio.bin_type == "rpm"
+
+
+- name: Delete MinIO Config and Binary Files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/usr/lib/systemd/system/{{ _minio.service }}-check.timer"
+    - "/usr/lib/systemd/system/{{ _minio.service }}-check.service"
+    - "/etc/default/{{ _minio.service }}"
+    - "/etc/systemd/system/{{ _minio.service }}.service"
+    - "{{ _minio.config }}"
+    - "{{ _minio.bin }}"
+    - "/tmp/{{ minio_pkg_name }}"
+
+
+- name: Force Systemd to Reload Configs
+  systemd:
+    daemon_reload: yes
+

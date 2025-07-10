@@ -1,0 +1,10 @@
+---
+- name: Delete SSL Directory
+  file:
+    path: "{{ item }}"
+    state: absent
+  register: delete_ssl_dir
+  with_items:
+    - "{{ _minio.base_path }}/.minio/certs"
+    - "{{ _ssl.ssl_dir }}"
+

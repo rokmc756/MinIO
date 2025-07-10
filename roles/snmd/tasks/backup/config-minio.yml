@@ -1,0 +1,60 @@
+---
+# - import_tasks: install-minio-pkgs.yml
+
+- block:
+    - name: Load Existing Config
+      slurp: src="{{ _minio.config }}"
+      register: config_slurp
+      no_log: yes
+
+    - name: Set config.json to Variable
+      set_fact: config_json="{{ config_slurp.content | b64decode  | from_json }}"
+      no_log: yes
+
+    - name: Set AccessKey
+      set_fact: minio_access_key="{{ config_json.credential.accessKey }}"
+
+    - name: Set SecretKey
+      set_fact: minio_secret_key="{{ config_json.credential.secretKey }}"
+  when:
+    - config_file.stat.exists is defined
+    - config_file.stat.exists
+
+
+- name: Check that Keys is Defined
+  assert:
+    that:
+      - _minio.access_key is defined
+      - _minio.secret_key is defined
+      - _minio.access_key is not none
+      - _minio.secret_key is not none
+      - _minio.access_key != ''
+      - _minio.secret_key != ''
+    msg: _minio.access_key and _minio.secret_key must be defined and is not empty
+
+
+- name: Copy Defaults Options Template
+  template:
+    src: minio_opt.j2
+    dest: /etc/default/{{ _minio.service }}
+  notify: Restart MinIO Service
+
+
+- name: Copy Systemd Service Template
+  template:
+    src: minio.service.j2
+    dest: /etc/systemd/system/{{ _minio.service }}.service
+  notify: Restart MinIO Service
+
+
+- name: Start MinIO
+  systemd: name={{ _minio.service }} state=started enabled=yes daemon_reload=yes
+
+
+- name: Force to Restart MinIO Server
+  meta: flush_handlers
+
+
+#- import_tasks: install-client.yml
+#  when: minio_client_install
+

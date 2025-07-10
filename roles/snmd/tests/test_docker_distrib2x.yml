@@ -9,44 +9,46 @@
       - minio1
       - minio2
   tasks:
-    - name: start container
+    - name: Start Container
       docker_container:
-        name: "{{item}}"
-        hostname: "{{item}}"
+        name: "{{ item }}"
+        hostname: "{{ item }}"
         image: registry.gitlab.com/vladgo/centos7-systemd
         state: started
         tty: yes
         keep_volumes: no
-        published_ports: "{{ minio_port }}"
+        published_ports: "{{ _minio.api_port }}"
         privileged: yes
         volumes:
           - /sys/fs/cgroup:/sys/fs/cgroup:ro
-      with_items: "{{distrib_names}}"
+      with_items: "{{ distrib_names }}"
 
-    - name: add container to inventory
+    - name: Add Container to Inventory
       add_host:
-        name: "{{item}}"
-        ansible_host: "{{item}}"
+        name: "{{ item }}"
+        ansible_host: "{{ item }}"
         ansible_user: root
         ansible_connection: docker
         groups: minio
       changed_when: false
-      with_items: "{{distrib_names}}"
+      with_items: "{{ distrib_names }}"
 
-- hosts: minio
+
+- hosts: workers
   vars_files:
     - vars.yml
   pre_tasks:
     - name: show volumes
-      debug: msg={{ minio_volumes }}
+      debug: msg={{ _minio.volumes }}
   vars:
     distrib_names:
       - minio1
       - minio2
-    minio_client_admin_host: "{{ hostvars[groups.minio.0].ansible_host }}"
-    minio_volumes: "{{ (groups['minio']|map('extract', hostvars, 'ansible_default_ipv4') \
+    minio_client_admin_host: "{{ hostvars[groups.workers.0].ansible_host }}"
+    minio_volumes: "{{ (groups['workers']|map('extract', hostvars, 'ansible_default_ipv4') \
                           | map(attribute='address') \
                           | map('regex_replace', '^(.*)$', 'http://\\1/export1 http://\\1/export2') \
                           | join(' ')).split() | list }}"
   roles:
-    - ansible-minio
+    - snmd
+

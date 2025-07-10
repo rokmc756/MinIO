@@ -1,0 +1,63 @@
+---
+- name: Get Network Interface name From Prefix of IP Addresses Provided for Greenplum Nodes
+  set_fact:
+    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr1 ) | map(attribute='device') | first }}"
+
+
+- name: Get IP Address from Provided Network Device Name
+  set_fact:
+    ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
+    ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
+
+
+- name: Define Facts For All Workers Hostname and FQDN
+  set_fact:
+    all_hostnames: "{{ groups['workers'] | map('extract', hostvars, ['ansible_hostname']) | join(',') }}"
+    all_fqdn: "{{ groups['workers'] | map('extract', hostvars, 'ansible_fqdn') | join(',') }}"
+
+
+- name: Define Fact For All Workers Hosts of First IP Addresses
+  set_fact:
+    all_net0_ipaddrs: "{{ groups['all'] | map('extract', hostvars, ['ansible_'~netdev0, 'ipv4', 'address']) | join(',') }}"
+
+
+- name: Set Default Network Device and Address
+  set_fact:
+    _netdev: "{{ 'ansible_'~ netdev1 }}"
+    _ipaddr: "{{ ipaddr1 }}"
+
+
+- name: Define Fact of Network Address
+  set_fact:
+    minio_network_range: "{{ hostvars[inventory_hostname][_netdev]['ipv4']['network'] }}/{{ ( hostvars[inventory_hostname][_netdev]['ipv4']['address'] + '/' + hostvars[inventory_hostname][_netdev]['ipv4']['netmask'] ) | ansible.utils.ipaddr('prefix') }}"
+
+
+- name: Define MinIO Software Facts for Red Hat or CentOS or Rocky
+  set_fact:
+    mcli_pkg_name: "mcli-{{ _mcli.release_date }}-{{ _mcli.patch_version }}.x86_64.rpm"
+    warp_pkg_name: "warp_Linux_x86_64.rpm"
+  when: ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Rocky']
+
+
+- name: Define MinIO Software Facts for Ubuntu or Debian
+  set_fact:
+    mcli_pkg_name: "mcli_{{ _mcli.release_date }}_amd64.deb"
+  when: ansible_facts['distribution'] in [ 'Debian', 'Ubuntu']
+
+
+- name: Define MinIO Facts
+  set_fact:
+    mc_bin: "mc.RELEASE.{{ _mc.release_date }}"
+    warp_version: "{{ _warp.major_version }}.{{ _warp.minor_version }}.{{ _warp.patch_version }}"
+    last_host_num: "{{ groups['workers']|length }}"
+    hostname_prefix: "{{ inventory_hostname[:-1] }}"
+    data_prefix: "{{ _minio.volumes | map(attribute='dir') | first | regex_replace('^(.+)([0-9]{1})$','\\1') }}"
+
+
+- name: Define Fact of Specific IP Address Range
+  set_fact:
+    minio_ip_addr_range: "{{ item }}"
+  with_items: "{{ ansible_all_ipv4_addresses }}"
+  when: "item | ansible.utils.ipaddr( minio_network_range )"
+

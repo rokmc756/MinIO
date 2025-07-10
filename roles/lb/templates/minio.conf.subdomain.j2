@@ -20,7 +20,7 @@ upstream minio_console {
 
 server {
 
-    listen 80;
+    listen {{ _nginx.http_port }};
     server_name {{ _nginx.minio.console.hostname }}.{{ _nginx.minio.console.domain }};
     return 301 https://$host$request_uri;
 
@@ -29,8 +29,8 @@ server {
 
 server {
 
-   listen       80;
-   listen  [::]:80;
+   listen       {{ _nginx.http_port }};
+   listen  [::]:{{ _nginx.http_port }};
 
    # error_log /var/log/nginx/api.log debug;
    server_name {{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }};
@@ -70,8 +70,8 @@ server {
 
 server {
 
-   listen       443 ssl;
-   listen  [::]:443 ssl;
+   listen       {{ _nginx.https_port }} ssl;
+   listen  [::]:{{ _nginx.https_port }} ssl;
 
    ssl_certificate /etc/nginx/certs/nginx-minio-console-selfsigned.crt;
    ssl_certificate_key /etc/nginx/certs/nginx-minio-console-selfsigned.key;

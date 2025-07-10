@@ -1,4 +1,4 @@
-upstream minio_s3 {
+upstream minio_api {
 
    least_conn;
    server {{ inventory_hostname }}.{{ _minio.domain }}:9000;
@@ -14,8 +14,8 @@ upstream minio_console {
 
 server {
 
-   listen       80;
-   listen  [::]:80;
+   listen       {{ _minio.http_port }};
+   listen  [::]:{{ _minio.http_port }};
 
    server_name  {{ inventory_hostname }}.{{ _minio.domain }};
 
@@ -41,7 +41,7 @@ server {
       proxy_set_header Connection "";
       chunked_transfer_encoding off;
 
-      proxy_pass https://minio_s3; # This uses the upstream directive definition to load balance
+      proxy_pass https://minio_api; # This uses the upstream directive definition to load balance
 
    }
 

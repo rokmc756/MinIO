@@ -1,0 +1,47 @@
+---
+- name: Check OS ( MinIO Cluster - Client )
+  fail: msg="Not a Red Hat based system!"
+  when: ansible_facts['distribution'] not in ['RedHat', 'CentOS', 'Rocky', 'Debian', 'Ubuntu']
+
+
+- name: Set Facts for Network and Packages Informations
+  import_tasks: set-minio-facts.yml
+  tags: testfact, install, uninstall, create, delete, setup, remove, upload, download, enable, disable, mount, umount
+
+
+- name: Install MinIO Client ( MC )
+  import_tasks: install-mc.yml
+  tags: setup, install
+  when: ( mc is defined and mc == true ) or ( client_all is defined and client_all == true )
+
+
+- name: Install MinIO Client ( MCli )
+  import_tasks: install-mcli.yml
+  tags: setup, install
+  when: ( mcli is defined and mcli == true ) or ( client_all is defined and client_all == true )
+
+
+- name: Install Benchmask Tool ( Warp )
+  import_tasks: install-warp.yml
+  tags: setup, install
+  when: ( warp is defined and warp == true ) or ( client_all is defined and client_all == true )
+
+
+- name: Uninstall Benchmask Tool ( Warp )
+  import_tasks: uninstall-warp.yml
+  tags: remove, uninstall
+  when: ( warp is defined and warp == true ) or ( client_all is defined and client_all == true )
+
+
+- name: Uninstall MinIO Client ( MCli )
+  import_tasks: uninstall-mcli.yml
+  tags: remove, uninstall
+  when: ( mcli is defined and mcli == true ) or ( client_all is defined and client_all == true )
+
+
+- name: Uninstall MinIO Client ( MC )
+  import_tasks: uninstall-mc.yml
+  tags: remove, uninstall
+  when: ( mc is defined and mc == true ) or ( client_all is defined and client_all == true )
+
+

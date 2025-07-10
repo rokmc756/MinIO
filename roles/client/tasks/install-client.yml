@@ -1,0 +1,60 @@
+---
+# - import_tasks: install-client-pkgs.yml
+
+
+- name: Install Sudo
+  yum: name=sudo
+  when: minio_user != 'root'
+
+
+- name: Fix ownership for /home/{{ _minio.user }}
+  file: path=/home/{{ _minio.user }}/.ansible/tmp state=directory mode=0700 owner={{ _minio.user }} group={{ _minio.user }}
+
+
+- name: Add MinIO Server to Client Config
+  become: yes
+  become_user: "{{ _minio.user }}"
+  command: "/usr/local/bin/mcli --insecure alias set minio https://{{ ansible_host | default('localhost') }}:{{ _minio.api_port }} {{ _minio.access_key }} {{ _minio.secret_key }}"
+  args:
+    creates: "{{ _minio.client_config }}"
+  # command: "{{ _minio.client_bin }} --insecure alias set minio https://{{ ansible_host | default('localhost') }}:{{ _minio.api_port }} {{ _minio.access_key }} {{ _minio.secret_key }}"
+
+
+- block:
+    - name: Create MinIO Admin Service
+      copy:
+        content: |
+          [Unit]
+          Description=Check minio {{ _minio.service }} heal
+          [Service]
+          WorkingDirectory={{ _minio.user_home }}
+          User={{ _minio.user }}
+          Type=oneshot
+          ExecStart={{ _minio.client_bin }} admin heal -r minio
+        dest: /usr/lib/systemd/system/{{ _minio.service }}-check.service
+      notify: systemd daemon-reload
+
+    - name: Create Timer for MinIO Admin Service
+      copy:
+        content: |
+          [Unit]
+          Description=Run minio {{ _minio.service }} heal check
+          [Timer]
+          OnCalendar={{ _minio.check_calendar | d('weekly') }}
+        dest: /usr/lib/systemd/system/{{ _minio.service }}-check.timer
+
+    - name: Start MinIo Admin Service Timer
+      systemd: name={{ _minio.service }}-check.timer state=started enabled=yes daemon_reload=yes
+
+    - name: Check Cluster Status
+      become: yes
+      become_user: "{{ _minio.user }}"
+      command: "{{ _minio.client_bin }} admin info minio --json"
+      changed_when: no
+      register: info
+      until: "(info.stdout_lines | map('from_json') | map(attribute='storage.backend.offlineDisks') | sum) == 0"
+      retries: 5
+      delay: 10
+  when:
+    - _minio.client_admin_host in [ansible_default_ipv4.address, 'localhost', ansible_hostname, ansible_nodename, ansible_host]
+

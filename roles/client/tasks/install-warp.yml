@@ -1,0 +1,47 @@
+---
+- name: Check if Warp Binary Already Exists
+  stat: path={{ _warp.bin }}
+  register: check_warp_bin
+
+
+- name: Copy Warp Package from Local Directory
+  copy: src={{ warp_pkg_name }} dest=/tmp/{{ warp_pkg_name }} mode=0644 owner=root group=root
+  register: mc_local_copy
+  when: check_warp_bin.stat.exists == false and _warp.download == false
+
+
+- name: Download Warp Package
+  get_url:
+    url: "{{ _warp.download_url }}/v{{ warp_version }}/{{ warp_pkg_name }}"
+    dest: "/tmp/{{ warp_pkg_name }}"
+    mode: 0644
+  when: ( ( _warp.download_url + '/v' + warp_version + '/' + warp_pkg_name ).endswith('warp') or ( _warp.download_url + '/v' + warp_version + '/' + warp_pkg_name ).endswith('rpm') ) and ( check_warp_bin.stat.exists == false and _warp.download == true )
+
+
+- name: Install Warp Package from Local Directory
+  package:
+    name: /tmp/{{ warp_pkg_name }}
+    state: present
+    disable_gpg_check: yes
+  when: check_warp_bin.stat.exists == false
+
+
+- name: Run Warp Benchmark from Workers
+  shell: |
+    {{ _warp.bin }} mixed --insecure --tls --host {{ _ipaddr }}:{{ _minio.api_port }} --access-key minioadmin \
+    --secret-key changeme --duration 20s --objects 10 --concurrent 1
+  register: run_warp_workers
+  when: inventory_hostname in groups['workers']
+- debug: msg="{{ run_warp_workers }}"
+  when: inventory_hostname in groups['workers']
+
+
+- name: Run Warp Benchmark from Non Workers
+  shell: |
+    {{ _warp.bin }} mixed --host minio-api.jtest.pivotal.io --access-key minioadmin \
+    --secret-key changeme --duration 20s --objects 10 --concurrent 1
+  register: run_warp_non_workers
+  when: inventory_hostname not in groups['workers']
+- debug: msg="{{ run_warp_non_workers }}"
+  when: inventory_hostname not in groups['workers']
+

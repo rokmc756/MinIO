@@ -1,20 +1,23 @@
-user  nginx;
+user  {{ _nginx.user }};
 
-worker_processes {{ nginx_worker_processes }};
+worker_processes {{ _nginx.worker_processes }};
 
 error_log  /var/log/nginx/error.log warn;
 pid        /var/run/nginx.pid;
 
 
 events {
-    worker_connections  1024;
+
+    worker_connections  {{ _nginx.worker_connections }};
+
 }
 
 
 http {
+
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
-    client_max_body_size {{ nginx_max_body_size }};
+    client_max_body_size {{ _nginx.max_body_size }};
 
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
@@ -23,12 +26,13 @@ http {
     access_log  /var/log/nginx/access.log  main;
 
     sendfile        on;
-    #tcp_nopush     on;
+    # tcp_nopush     on;
 
     keepalive_timeout  65;
 
-    #gzip  on;
+    # gzip  on;
 
     include /etc/nginx/conf.d/*.conf;
+
 }
 

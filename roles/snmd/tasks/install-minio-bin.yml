@@ -1,58 +1,51 @@
 ---
-- name: Check Number of Drives in Cluster
-  assert:
-    that:
-      - minio_volumes|count >= 4
-      - minio_volumes|count <= 16
-    msg: Minio cluster work with minimum 4 and maximum 16 drives
-  when:
-    - minio_volumes|count > 1
-
-
 - name: Check if MinIO Binary Already Exists
-  stat: path={{ minio_bin }}
-  register: minio_bin_exists
-- debug: msg={{ minio_bin_exists }}
+  stat: path={{ _minio.bin }}
+  register: check_minio_bin
+- debug: msg={{ check_minio_bin }}
 
 
-- name: Copy MinIo Binary from Local Directory
-  copy: src=minio-{{ _minio.release_date }}.tar.gz dest=/tmp/minio-{{ _minio.release_date }}.tar.gz mode=0644 owner=root group=root
+- name: Copy MinIO Binary from Local Directory
+  copy: src={{ minio_bin }}.zip dest=/tmp/{{ minio_bin }}.zip mode=0644 owner=root group=root
   register: minio_local_copy
-  when: minio_bin_exists.stat.exists == false and minio_download == false
+  when: check_minio_bin.stat.exists == false and _minio.download == false
 
 
 - name: Unarchive MinIO
   unarchive:
-    src: "/tmp/minio-{{ _minio.release_date }}.tar.gz"
+    src: "/tmp/{{ minio_bin }}.zip"
     dest: "/usr/local/bin"
     owner: "root"
     group: "root"
     mode: "0755"
     remote_src: yes
-    # extra_opts:
-    #- --transform
-    #- s/^xxx/yyy/
   register: minio_unarchive
-  when: minio_bin_exists.stat.exists == false and minio_download == false
-  notify: Restart MinIO Service
+  when: check_minio_bin.stat.exists == false and _minio.download == false
 
 
 - name: Download MinIO Server
   get_url:
-    url: "{{ minio_server_url }}"
-    dest: "{{ minio_bin }}"
+    url: "{{ _minio.download_url }}/{{ minio_bin }}"
+    dest: "{{ _minio.bin_dir }}"
     mode: 0755
-    checksum: "{{ minio_server_checksum | d(omit) }}"
-  when: ( minio_server_url.endswith('minio') or minio_server_url.endswith('Z') ) and ( minio_bin_exists.stat.exists == false and minio_download == true )
+    checksum: "{{ _minio.server_checksum | d(omit) }}"
+  when: ( _minio.server_url.endswith('minio') or ( _minio.download_url + '/' + minio_bin ).endswith('Z') ) and ( check_minio_bin.stat.exists == false and _minio.download == true )
 
 
 - name: Unarchive MinIO Server
   unarchive:
-    src: "{{ minio_server_url }}"
-    dest: "{{ minio_bin | dirname }}"
-    remote_src: "{{ minio_server_url.startswith('http') }}"
+    src: "{{ _minio.server_url }}"
+    dest: "{{ _minio.bin | dirname }}"
+    remote_src: "{{ _minio.server_url.startswith('http') }}"
     validate_certs: no
     mode: 0755
-  when: minio_server_url.endswith('xz') and ( minio_bin_exists.stat.exists == false and minio_download == true )
-  notify: Restart MinIO Service
+  when: _minio.server_url.endswith('xz') and ( check_minio_bin.stat.exists == false and _minio.download == true )
+
+
+- name: Create Symbolic link
+  file:
+    src: "/usr/local/bin/{{ minio_bin }}"
+    dest: "/usr/local/bin/minio"
+    state: link
+  when: minio_bin.endswith('Z') and check_minio_bin.stat.exists == false
 

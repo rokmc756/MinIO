@@ -18,8 +18,8 @@ upstream minio_console {
 
 server {
 
-   listen       443 ssl;
-   listen  [::]:443 ssl;
+   listen       {{ _nginx.https_port }} ssl;
+   listen  [::]:{{ _nginx.https_port }} ssl;
 
    include /etc/nginx/conf.d/self-signed.conf;
 

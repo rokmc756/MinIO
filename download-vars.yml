@@ -1,0 +1,41 @@
+---
+_mc:
+  release_date: 2025-05-21T01-59-54Z
+  patch_version: 1
+  download_url: https://dl.minio.io/client/mc/release/linux-amd64
+  download_archive_url: https://dl.minio.io/client/mc/release/linux-amd64/archive
+
+
+_mcli:
+  release_date: 20250521015954.0.0
+  patch_version: 1
+  download_url: https://dl.minio.io/client/mc/release/linux-amd64
+  download_archive_url: https://dl.minio.io/client/mc/release/linux-amd64/archive
+  bin: /usr/local/bin/mcli
+
+
+_warp:
+  download_url: https://github.com/minio/warp/releases/download
+  major_version: 1
+  minor_version: 1
+  patch_version: 6
+  bin: /usr/bin/warp
+
+
+_certgen:
+  download_url: https://github.com/minio/certgen/releases/download
+  major_version: 1
+  minor_version: 3
+  patch_version: 0
+  os: linux
+  arch: amd64
+
+
+_minio:
+  release_date: 20250422221226.0.0  # Last Release to Support Full Feature which is Not Community Version
+  bin_release_date: 2025-04-22T22-12-26Z
+  patch_version: 1
+  download_url: https://dl.minio.io/server/minio/release/linux-amd64/archive
+  arch_type: x86_64
+  bin_type: rpm # bin
+

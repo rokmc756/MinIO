@@ -1,13 +1,13 @@
 upstream minio {
     least_conn;
-{% for srv in nginx_nodes %}
-    server {{ srv }}:{{ minio_port }};
+{% for srv in _nginx.nodes %}
+    server {{ srv }}:{{ _minio.api_port }};
 {% endfor %}
 }
 
 server {
 
-    listen 80;
+    listen {{ _nginx.http_port }};
 
     location / {
 

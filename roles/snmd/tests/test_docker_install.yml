@@ -5,23 +5,23 @@
   vars_files:
     - vars.yml
   tasks:
-    - name: start container
+    - name: Start Container
       docker_container:
-        name: "{{container_name}}"
-        hostname: "{{container_name}}"
+        name: "{{ container_name }}"
+        hostname: "{{ container_name }}"
         image: registry.gitlab.com/vladgo/centos7-systemd
         state: started
         tty: yes
         keep_volumes: no
-        published_ports: "{{ minio_port }}"
+        published_ports: "{{ _minio.api_port }}"
         privileged: yes
         volumes:
           - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-    - name: add container to inventory
+    - name: Add Container to Inventory
       add_host:
-        name: "{{container_name}}"
-        ansible_host: "{{container_name}}"
+        name: "{{ container_name }}"
+        ansible_host: "{{ container_name }}"
         ansible_user: root
         ansible_connection: docker
         groups: docker
@@ -32,3 +32,4 @@
     - vars.yml
   roles:
     - ansible-minio
+

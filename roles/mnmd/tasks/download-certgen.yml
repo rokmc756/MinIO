@@ -26,7 +26,7 @@
     remote_src: yes
 
 
-- name: Change Permission of Certgen File
+- name: Change Certgen File Permission
   file:
     path: "{{ item }}"
     state: file

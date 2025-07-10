@@ -1,0 +1,36 @@
+---
+- name: Remove MinIO Service Alias
+  shell: |
+    {{ _mcli.bin }} alias remove myminio
+  register: remove_minio_svc_alias
+- debug: msg="{{ remove_minio_svc_alias }}"
+
+
+- name: Check if MinIO Client Binary Already Exists
+  stat: path={{ _mcli.bin }}
+  register: check_mcli_bin
+
+
+- name: Delete MinIO Client Package from Local Directory
+  file:
+    path: /tmp/{{ mcli_pkg_name }}
+    state: absent
+  when: check_mcli_bin.stat.exists == true
+
+
+- name: Uninstall MinIO Client Package
+  package:
+    name: mcli
+    state: absent
+  when: check_mcli_bin.stat.exists == true
+
+
+- name: Delete MinIO Client ( MCli ) Bin and Config
+  file:
+    path: "{{ item }}"
+    state: absent
+  register: delete_mc_unarchive
+  with_items:
+    - "{{ _mcli.bin }}"
+    - "{{ _mcli.config }}"
+

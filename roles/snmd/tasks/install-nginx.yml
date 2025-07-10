@@ -8,11 +8,11 @@
       ternary('rhel', 'centos')}}/{{ ansible_distribution_major_version }}/$basearch/
     gpgkey: https://nginx.org/keys/nginx_signing.key
     gpgcheck: yes
-  when: nginx_package == 'nginx'
+  when: _nginx.package == 'nginx'
 
 
 - name: Installing NGINX
-  yum: name={{ nginx_package }} validate_certs=no
+  yum: name={{ _nginx.package }} validate_certs=no
 
 
 - name: Copy NGINX Config
@@ -28,7 +28,7 @@
 
 
 - name: Show NGINX Address
-  debug: msg="Minio Cluster Address http://{{ inventory_hostname }}.{{ _minio.domain }}/minio"
+  debug: msg="Minio Cluster Address http://{{ inventory_hostname }}.{{ _minio.domain }}"
 
 
 - name: Starting NGINX

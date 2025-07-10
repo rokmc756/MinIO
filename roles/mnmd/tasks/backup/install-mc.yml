@@ -1,0 +1,51 @@
+---
+- name: Check if MinIO Client Binary Already Exists
+  stat: path={{ _mc.bin }}
+  register: mc_bin_exists
+
+
+- name: Copy MinIO Client Binary from Local Directory
+  copy: src=mc-{{ _mc.release_date }}.tar.gz dest=/tmp/mc-{{ _mc.release_date }}.tar.gz mode=0644 owner=root group=root
+  register: mc_local_copy
+  when: mc_bin_exists.stat.exists == false and _mc.download == false
+
+
+- name: Unarchive MinIO Client
+  unarchive:
+    src: "/tmp/mc-{{ _mc.release_date }}.tar.gz"
+    dest: "/usr/local/bin"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+    remote_src: yes
+    # extra_opts:
+    #- --transform
+    #- s/^xxx/yyy/
+  register: mc_unarchive
+  when: mc_bin_exists.stat.exists == false and _mc.download == false
+
+
+- name: Download MinIo Client
+  get_url:
+    url: "{{ _mc.download_url }}"
+    dest: "{{ _mc.bin }}"
+    checksum: "{{ _mc.checksum | d(omit) }}"
+    mode: 0755
+    timeout: 20
+  when: ( _mc.download_url.endswith('mc') or _mc.download_url.endswith('Z') ) and ( mc_bin_exists.stat.exists == false and _mc.download == true )
+
+
+- name: Install Unzip
+  yum: name=unzip
+  when: _mc.download_url.endswith('zip') and ( mc_bin_exists.stat.exists == false and _mc.download == false )
+
+
+- name: Unarchive MinIO Client
+  unarchive:
+    src: "{{ _mc.download_url }}"
+    dest: "{{ _mc.bin | dirname }}"
+    remote_src: "{{ _mc.download_url.startswith('http') }}"
+    mode: 0755
+  when: _mc.download_url.endswith('zip') and ( mc_bin_exists.stat.exists == false and _mc.download == false )
+
+

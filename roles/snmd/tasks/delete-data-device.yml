@@ -3,7 +3,7 @@
   mount:
     path: "{{ item.dir }}"
     state: absent
-  loop: "{{ minio_volumes }}"
+  loop: "{{ _minio.volumes }}"
 
 
 - name: Delete MinIO Config and Binary Files
@@ -11,25 +11,27 @@
     path: "{{ item }}"
     state: absent
   with_items:
-    - "/usr/lib/systemd/system/{{ minio_service }}-check.timer"
-    - "/usr/lib/systemd/system/{{ minio_service }}-check.service"
-    - "/etc/default/{{ minio_service }}"
-    - "/etc/systemd/system/{{ minio_service }}.service"
-    - "{{ minio_client_bin }}"
-    - "{{ minio_client_config }}"
-    - "{{ minio_config }}"
+    - "/usr/lib/systemd/system/{{ _minio.service }}-check.timer"
+    - "/usr/lib/systemd/system/{{ _minio.service }}-check.service"
+    - "/etc/default/{{ _minio.service }}"
+    - "/etc/systemd/system/{{ _minio.service }}.service"
+    - "{{ _minio.config }}"
+    - "{{ _minio.bin }}"
     - "{{ minio_bin }}"
     - "/root/certs"
     - "/root/.minio"
     - "/etc/nginx/nginx.conf"
     - "/etc/nginx/conf.d/minio.conf"
+    - "/home/minio/certs"
+    - "/home/minio/.minio"
+    - "/tmp/{{ minio_pkg_name }}"
 
 
 - name: Delete MinIO Config and Binary Files
   file:
     path: "{{ item.dir }}"
     state: absent
-  with_items: "{{ minio_volumes }}"
+  with_items: "{{ _minio.volumes }}"
 
 
 - import_tasks: ext/cleanup-devices.yml

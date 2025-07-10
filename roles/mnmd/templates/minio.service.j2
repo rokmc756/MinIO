@@ -3,20 +3,20 @@ Description=Minio
 Documentation=https://docs.minio.io
 Wants=network-online.target
 After=network-online.target
-AssertFileIsExecutable={{ minio_bin }}
+AssertFileIsExecutable={{ _minio.bin }}
 
 [Service]
-WorkingDirectory={{ minio_user_home }}
+WorkingDirectory={{ _minio.user_home }}
 
-# User={{ minio_user }}
+# User={{ _minio.user }}
 # User=root
 User=minio
 Group=minio
 ProtectProc=invisible
 
-EnvironmentFile=-/etc/default/{{ minio_service }}
+EnvironmentFile=-/etc/default/{{ _minio.service }}
 ExecStartPre=/bin/bash -c "[ -n \"${MINIO_VOLUMES}\" ] || echo \"Variable MINIO_VOLUMES not set in /etc/default/minio\""
-ExecStart={{ minio_bin }} server $MINIO_OPTS $MINIO_VOLUMES
+ExecStart={{ _minio.bin }} server $MINIO_OPTS $MINIO_VOLUMES
 
 # StandardOutput=journal
 # StandardError=inherit

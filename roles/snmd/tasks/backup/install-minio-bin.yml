@@ -1,0 +1,58 @@
+---
+- name: Check Number of Drives in Cluster
+  assert:
+    that:
+      - _minio.volumes|count >= 4
+      - _minio.volumes|count <= 16
+    msg: Minio cluster work with minimum 4 and maximum 16 drives
+  when:
+    - _minio.volumes|count > 1
+
+
+- name: Check if MinIO Binary Already Exists
+  stat: path={{ _minio.bin }}
+  register: minio_bin_exists
+- debug: msg={{ minio_bin_exists }}
+
+
+- name: Copy MinIo Binary from Local Directory
+  copy: src=minio-{{ _minio.release_date }}.tar.gz dest=/tmp/minio-{{ _minio.release_date }}.tar.gz mode=0644 owner=root group=root
+  register: minio_local_copy
+  when: minio_bin_exists.stat.exists == false and _minio.download == false
+
+
+- name: Unarchive MinIO
+  unarchive:
+    src: "/tmp/minio-{{ _minio.release_date }}.tar.gz"
+    dest: "/usr/local/bin"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+    remote_src: yes
+    # extra_opts:
+    #- --transform
+    #- s/^xxx/yyy/
+  register: minio_unarchive
+  when: minio_bin_exists.stat.exists == false and _minio.download == false
+  # notify: Restart MinIO Service
+
+
+- name: Download MinIO Server
+  get_url:
+    url: "{{ _minio.server_url }}"
+    dest: "{{ _minio.bin }}"
+    mode: 0755
+    checksum: "{{ _minio.server_checksum | d(omit) }}"
+  when: ( _minio.server_url.endswith('minio') or _minio.server_url.endswith('Z') ) and ( minio_bin_exists.stat.exists == false and _minio.download == true )
+
+
+- name: Unarchive MinIO Server
+  unarchive:
+    src: "{{ _minio.server_url }}"
+    dest: "{{ _minio.bin | dirname }}"
+    remote_src: "{{ _minio.server_url.startswith('http') }}"
+    validate_certs: no
+    mode: 0755
+  when: _minio.server_url.endswith('xz') and ( minio_bin_exists.stat.exists == false and _minio.download == true )
+  # notify: Restart MinIO Service
+

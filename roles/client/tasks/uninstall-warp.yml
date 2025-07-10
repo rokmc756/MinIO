@@ -1,0 +1,19 @@
+---
+- name: Check if Warp Binary Already Exists
+  stat: path={{ _warp.bin }}
+  register: check_warp_bin
+
+
+- name: Delete Warp Package from Local Directory
+  file:
+    path: /tmp/{{ warp_pkg_name }}
+    state: absent
+  when: check_warp_bin.stat.exists == true
+
+
+- name: Uninstall Warp Package
+  package:
+    name: warp
+    state: absent
+  when: check_warp_bin.stat.exists == true
+

@@ -85,21 +85,53 @@ rk9-node01 ansible_ssh_host=192.168.2.171
 
 #### 3) Configure Variables
 ```yaml
-$ vi roles/snmd/defaults/main.yml
+$ vi group_vars/all.yml
 ---
-minio_download: false
+_minio:
+  base_path: "/home/minio"
+  cluster_name: jack-kr-minio
+  domain: "jtest.pivotal.io"
+  download: false
+  bin_type: rpm  # bin
+  release_date: 20250422221226.0.0        # Last Release to Support Full Feature which License is not Required
+  bin_release_date: 2025-04-22T22-12-26Z
+  patch_version: 1
+  download_url: https://dl.minio.io/server/minio/release/linux-amd64/archive
+  server_url: https://dl.minio.io/server/minio/release/linux-amd64/minio
+  os_version: el9
+  arch_type: x86_64
+  access_key: minioadmin
+  secret_key: changeme
+  server_checksum:
+  user: minio
+  group: minio
+  service: "minio"
+  user_home: /home/minio
+  config: "/home/minio/.minio/config.json"
+  bin: /usr/local/bin/minio
+  bin_dir: /usr/local/bin
+  listen_address: 0.0.0.0
+  api_port: 9000
+  console_port: 9001
+  http_port: 80
+  https_port: 443
+  ec:
+    stripe_size: 16
+    parity: 4
+  volumes:
+    - { dev: "/dev/nvme0n1", dir: "/data01", fs: "xfs" }
+    - { dev: "/dev/nvme0n2", dir: "/data02", fs: "xfs" }
+    - { dev: "/dev/nvme0n3", dir: "/data03", fs: "xfs" }
+    - { dev: "/dev/nvme0n4", dir: "/data04", fs: "xfs" }
 ~~ snip
-minio_access_key: 'admin'
-minio_secret_key: 'changeme'
-minio_bin: /usr/local/bin/minio
-minio_port: 9000
-minio_static_port: 9001
-minio_listen_address: 0.0.0.0
-minio_volumes:
-  - { dev: "/dev/nvme0n1", dir: "/data01", fs: "xfs" }
-  - { dev: "/dev/nvme0n2", dir: "/data02", fs: "xfs" }
-  - { dev: "/dev/nvme0n3", dir: "/data03", fs: "xfs" }
-  - { dev: "/dev/nvme0n4", dir: "/data04", fs: "xfs" }
+
+_certgen:
+  download_url: https://github.com/minio/certgen/releases/download
+  major_version: 1
+  minor_version: 3
+  patch_version: 0
+  os: linux
+  arch: amd64
 ~~ snip
 ```
 
@@ -156,37 +188,6 @@ rk9-node01 ansible_ssh_host=192.168.2.171
 rk9-node02 ansible_ssh_host=192.168.2.172
 rk9-node03 ansible_ssh_host=192.168.2.173
 rk9-node04 ansible_ssh_host=192.168.2.174
-```
-
-#### 3) Configure Variables
-```yaml
-$ vi roles/mnmd/defaults/main.yml
----
-minio_download: false
-~~ snip
-minio_access_key: 'admin'
-minio_secret_key: 'changeme'
-minio_bin: /usr/local/bin/minio
-minio_port: 9000
-minio_static_port: 9001
-minio_listen_address: 0.0.0.0
-minio_volumes:
-  - { dev: "/dev/nvme0n1", dir: "/data01", fs: "xfs" }
-  - { dev: "/dev/nvme0n2", dir: "/data02", fs: "xfs" }
-  - { dev: "/dev/nvme0n3", dir: "/data03", fs: "xfs" }
-  - { dev: "/dev/nvme0n4", dir: "/data04", fs: "xfs" }
-~~ snip
-
-$ vi roles/mnmd/vars/main.yml
----
-_certgen:
-  download_url: https://github.com/minio/certgen/releases/download
-  major_version: 1
-  minor_version: 3
-  patch_version: 0
-  os: linux
-  arch: amd64
-~~ snip
 ```
 
 #### 4) Deploy MinIO MNMD

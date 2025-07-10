@@ -30,6 +30,15 @@ _haproxy:
 
 
 _nginx:
+  user: nginx
+  group: nginx
+  package: nginx
+  worker_processes: "{{ ( ansible_processor_vcpus is defined) | ternary( ansible_processor_vcpus, 'auto') }}"
+  worker_connections: 4096
+  nodes: []
+  max_body_size: 128m
+  http_port: 80
+  https_port: 443
   minio:
     api:
       hostname: minio-api

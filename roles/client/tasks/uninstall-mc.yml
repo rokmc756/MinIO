@@ -1,0 +1,34 @@
+---
+- name: Remove MinIO Service Alias
+  shell: |
+    {{ _mc.bin }} alias remove myminio
+  register: remove_minio_svc_alias
+- debug: msg="{{ remove_minio_svc_alias }}"
+
+
+- name: Check if MinIO Client Binary Already Exists
+  stat: path={{ _mc.bin }}
+  register: mc_bin_exists
+
+
+- name: Delete MinIO Client ( MC )
+  file:
+    path: "{{ item }}"
+    state: absent
+  register: delete_mc_bin
+  with_items:
+    - "{{ _mc.bin }}"
+  when: mc_bin_exists.stat.exists == true
+
+
+- name: Delete MinIO Client Tarball, Binary and Link
+  file:
+    path: "{{ item }}"
+    state: absent
+  register: delete_mc_unarchive
+  with_items:
+    - "/tmp/mc.RELEASE.{{ _mc.release_date }}.zip"
+    - "/usr/local/bin/mc.RELEASE.{{ _mc.release_date }}"
+    - "{{ _mc.bin }}"
+    - "{{ _mc.config }}"
+

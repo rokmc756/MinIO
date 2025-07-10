@@ -10,7 +10,7 @@
 
 
 - name: Configure Firewalld for MinIO
-  import_tasks: disable-firewall.yml
+  import_tasks: security/disable-firewall.yml
   tags: disable, install
   when: (( firewall is defined and firewall == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
 
@@ -30,6 +30,12 @@
 - name: Install MinIO
   import_tasks: install-minio.yml
   tags: setup, install
+  when: (( minio is defined and minio == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
+
+
+- name: Configure MinIO
+  import_tasks: config-minio.yml
+  tags: config, install
   when: (( minio is defined and minio == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
 
 

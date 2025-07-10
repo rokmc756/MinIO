@@ -2,32 +2,48 @@
 ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
 
-
 _minio:
   base_path: "/home/minio"
   cluster_name: jack-kr-minio
   domain: "jtest.pivotal.io"
-  major_version: "15"
-  minor_version: "5"
-  patch_version: "1"
-  build_version: "1"
-  # release_date: 20231025
-  release_date: 20250422221226.0.0-1  # Last Release to Support Full Feature which is Not Community Version
+  download: false
+  bin_type: rpm  # bin
+  release_date: 20250422221226.0.0        # Last Release to Support Full Feature which License is not Required
+  bin_release_date: 2025-04-22T22-12-26Z
+  patch_version: 1
+  download_url: https://dl.minio.io/server/minio/release/linux-amd64/archive
+  server_url: https://dl.minio.io/server/minio/release/linux-amd64/minio
   os_version: el9
   arch_type: x86_64
-  bin_type: rpm
-  user: jomoon
-  group: jomoon
-  password: 'changeme'
-  sudo_user_dir: "/home/jomoon"
-  repo_url: ""
-  download_url: ""
-  download: false
-  host_num: "{{ groups['all'] | length }}"
-  enable_ssl: true
+  access_key: minioadmin
+  secret_key: changeme
+  server_checksum:
+  user: minio
+  group: minio
+  service: "minio"
+  user_home: /home/minio
+  config: "/home/minio/.minio/config.json"
+  bin: /usr/local/bin/minio
+  bin_dir: /usr/local/bin
+  listen_address: 0.0.0.0
+  api_port: 9000
+  console_port: 9001
+  http_port: 80
+  https_port: 443
   ec:
     stripe_size: 16
     parity: 4
+  volumes:
+    - { dev: "/dev/nvme0n1", dir: "/data01", fs: "xfs" }
+    - { dev: "/dev/nvme0n2", dir: "/data02", fs: "xfs" }
+    - { dev: "/dev/nvme0n3", dir: "/data03", fs: "xfs" }
+    - { dev: "/dev/nvme0n4", dir: "/data04", fs: "xfs" }
+  client_admin_host:
+  check_calendar: weekly
+  user_id:
+  root_user: minioadmin
+  root_password: changeme
+  host_num: "{{ groups['all'] | length }}"
   net:
     type: "virtual"                # Or Physical
     gateway: "192.168.0.1"
@@ -44,12 +60,19 @@ _minio:
   vms:
     rk9: [ "rk9-freeipa", "rk9-node01", "rk9-node02", "rk9-node03", "rk9-node04", "rk9-node05", "rk9-node06" ]
     ubt24: [ "rk9-freeipa", "ubt24-node01", "ubt24-node02", "ubt24-node03", "ubt24-node04", "ubt24-node05" ]
-  debug_opt: ""  # --debug
-  access_key: minioadmin
-  secret_key: changeme
+  debug_opt: ""
+  # python -c "import uuid; print str(uuid.uuid4().get_hex().upper()[0:20])"
+  # python -c "import uuid; print str(uuid.uuid4().get_hex()[0:40])"
 
-_mc:
-  release_date: 20250521015954.0.0-1
+
+_certgen:
+  download: false
+  download_url: https://github.com/minio/certgen/releases/download
+  major_version: 1
+  minor_version: 3
+  patch_version: 0
+  os: linux
+  arch: amd64
 
 
 _ssl:
