@@ -377,6 +377,16 @@ $ make lb r=delete s=ha
 $ make lb r=enable s=sec
 ```
 
+## Install MinIO Client and Performance Benchmark Tools
+```yaml
+$ make client r=install s=mc
+$ make client r=install s=mcli
+$ make client r=install s=warp
+
+or
+$ make client r=install s=all
+```
+
 ## For Distributed MinIO with DirectPV on Kubernetes
 #### 1) The Architecure o DirectPV on Kubernetes
 <p align="center">
