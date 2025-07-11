@@ -15,6 +15,12 @@
   when: (( firewall is defined and firewall == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
 
 
+- name: Enable Docker Repository
+  import_tasks: docker/enable-docker-repo.yml
+  tags: enable
+  when: ( docker is defined and docker == true ) and inventory_hostname in groups['workers']
+
+
 - name: Create Data Devices
   import_tasks: create-data-device.yml
   tags: create, mount, install
@@ -61,6 +67,12 @@
   import_tasks: delete-data-device.yml
   tags: delete, umount, uninstall
   when: (( dev is defined and dev == true ) or ( mnmd_all is defined and mnmd_all == true )) and inventory_hostname in groups['workers']
+
+
+- name: Disable Docker Repository
+  import_tasks: docker/disable-docker-repo.yml
+  tags: disable
+  when: ( docker is defined and docker == true ) and inventory_hostname in groups['workers']
 
 
 - name: Upgrade MinIO

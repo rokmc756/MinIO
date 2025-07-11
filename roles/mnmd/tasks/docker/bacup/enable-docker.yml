@@ -1,0 +1,43 @@
+---
+- name: Creates Directory
+  file:
+    path: "/etc/docker/certs.d/{{ _harbor.hostname }}.{{ _harbor.domain }}:443"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+
+#- name: Copy Docker Configuration
+#  synchronize:
+#    mode: push
+#    src:  "/etc/docker/"
+#    dest: "/etc/docker/"
+#    set_remote_user: true
+#    rsync_opts:
+#      - "-e ssh"          # "-e ssh -i ~/.ssh/id_rsa.pub"
+#    ssh_args:
+#      - "-p changeme -o StrictHostKeyChecking=no"
+#  delegate_to: "{{ _harbor.hostname }}.{{ _harbor.domain }}"
+#  delegate_facts: true
+#  register: copy_docker_config
+#- debug: msg={{ copy_docker_config }}
+#  when: print_debug == true
+
+
+- name: Copy Docker Configurations by Rsync
+  shell: |
+    rsync -a --rsh='/usr/bin/sshpass -p changeme ssh -o StrictHostKeyChecking=no' root@{{ _harbor.hostname }}.{{ _harbor.domain }}:/etc/docker/ /etc/docker/
+
+
+- name: Restart Docker
+  systemd:
+    name: docker
+    state: restarted
+  register: restart_docker
+  until: restart_docker is succeeded
+  retries: 3
+  delay: 10
+- debug: msg={{ restart_docker }}
+  when: print_debug == true
+

@@ -1,0 +1,31 @@
+---
+- name: Disable and Stop Docker
+  systemd:
+    name: docker
+    state: stopped
+    enabled: no
+  register: disable_docker
+  until: disable_docker is succeeded
+  retries: 10
+- debug: msg={{ disable_docker }}
+
+
+- name: Uninstall Docker-CE Packages
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - "docker-ce"
+  register: uninstall_docker_ce
+- debug: msg={{ uninstall_docker_ce }}
+
+
+- name: Remove Docker-CE Repository
+  file:
+    path: "{{ item }}"
+    state: absent
+  register: remove_docker_ce_repo
+  with_items:
+    - "/etc/yum.repos.d/docker-ce.repo"
+- debug: msg={{ remove_docker_ce_repo }}
+
