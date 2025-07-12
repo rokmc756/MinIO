@@ -439,7 +439,7 @@ $ make minio r=uninstall s=directpv
 
 ## Planning
 - [O] Need to Check Configuration URL Redirect for HAProxy : Check haproxy.cfg
-
+- [ ] Configure Combination of NGINX and MinIO ( http+http, http+https, https+http, https+https )
 
 ### References
 - https://apps.truenas.com/resources/minio-enterprise-mnmd/
