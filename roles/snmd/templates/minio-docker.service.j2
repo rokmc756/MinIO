@@ -1,7 +1,7 @@
 [Unit]
-Description=MinIO Docker Container
-After=minio-docker.service
-Requires=minio-docker.service
+Description=SNMD MinIO Docker Container
+After=docker.service
+Requires=docker.service
 
 [Service]
 ExecStart=/usr/bin/docker run \

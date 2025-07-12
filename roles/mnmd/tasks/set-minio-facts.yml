@@ -52,7 +52,18 @@
     certgen_file_name: "certgen-{{ _certgen.os }}-{{ _certgen.arch }}"
     last_host_num: "{{ groups['workers']|length }}"
     hostname_prefix: "{{ inventory_hostname[:-1] }}"
+
+
+- name: Define MinIO Facts
+  set_fact:
     data_prefix: "{{ _minio.volumes | map(attribute='dir') | first | regex_replace('^(.+)([0-9]{1})$','\\1') }}"
+  when: _minio.bin_type is defined and _minio.bin_type != "docker"
+
+
+- name: Define MinIO Facts
+  set_fact:
+    data_prefix: "{{ _minio.volumes | map(attribute='dt_alias') | first | regex_replace('^(.+)([0-9]{1})$','\\1') }}"
+  when: _minio.bin_type is defined and _minio.bin_type == "docker"
 
 
 - name: Define Fact of Specific IP Address Range

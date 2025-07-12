@@ -3,6 +3,12 @@
   systemd:
     name: minio-docker
     state: stopped
+
+
+- name: Stop and Remove Docker Imgages
+  shell: |
+    docker stop minio && docker rm minio
+  register: stop_docker_image
   ignore_errors: true
 
 

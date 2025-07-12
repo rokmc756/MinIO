@@ -60,7 +60,7 @@
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
     - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/CAs/private.key" }
-  when: _minio.bin_type == rpm or _minio.bin_type == bin
+  when: _minio.bin_type is defined and _minio.bin_type != "docker"
 
 
 - name: Copy File with Owner and Permissions
@@ -80,5 +80,5 @@
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
     - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/CAs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/CAs/private.key" }
-  when: _minio.bin_type == docker
+  when: _minio.bin_type is defined and _minio.bin_type == "docker"
 

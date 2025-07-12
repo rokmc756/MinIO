@@ -1,1 +1,3 @@
 
+025-07-12 22:49:52,582 p=27182 u=jomoon n=ansible | changed: [rk9-node03] => (item={'dev': '/dev/nvme0n2', 'dir': '/data02', 'fs': 'xfs', 'dt_alias': '/data2'})
+2025-07-12 22:49:52,597 p=27182 u=jomoon n=ansible | changed: [rk9-node04] => (item={'dev': '/dev/nvme0n2', 'dir': '/data02', 'fs': 'xfs', 'dt_alias': '/data2'})
