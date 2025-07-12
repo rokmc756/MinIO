@@ -18,3 +18,8 @@
   import_tasks: install-minio-bin.yml
   when: _minio.bin_type == "bin"
 
+
+- name: Install MinIO Docker
+  import_tasks: install-minio-docker.yml
+  when: _minio.bin_type == "docker"
+

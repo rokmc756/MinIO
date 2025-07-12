@@ -17,8 +17,8 @@
 
 - name: Enable Docker Repository
   import_tasks: docker/enable-docker-repo.yml
-  tags: enable
-  when: ( docker is defined and docker == true ) and inventory_hostname in groups['workers']
+  tags: enable, install
+  when: (( docker is defined and docker == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Create Data Devices
@@ -51,6 +51,12 @@
   when: (( nginx is defined and nginx == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
 
 
+- name: Uninstall NGINX
+  import_tasks: uninstall-nginx.yml
+  tags: remove, uninstall
+  when: (( nginx is defined and nginx == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
+
+
 - name: Uninstall MinIO
   import_tasks: uninstall-minio.yml
   tags: remove, uninstall
@@ -65,8 +71,8 @@
 
 - name: Disable Docker Repository
   import_tasks: docker/disable-docker-repo.yml
-  tags: disable
-  when: ( docker is defined and docker == true ) and inventory_hostname in groups['workers']
+  tags: disable, uninstall
+  when: (( docker is defined and docker == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
 
 
 - name: Upgrade MinIO

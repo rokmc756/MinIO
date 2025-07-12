@@ -1,0 +1,14 @@
+---
+- name: Copy Systemd Service Template
+  template:
+    src: minio-docker.service.j2
+    dest: /etc/systemd/system/{{ _minio.service }}-docker.service
+
+
+- name: Start MinIO
+  systemd: name={{ _minio.service }}-docker state=started enabled=yes daemon_reload=yes
+
+
+- name: Force to Restart MinIO Docker Server
+  meta: flush_handlers
+

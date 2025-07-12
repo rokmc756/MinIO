@@ -13,6 +13,10 @@
     - "{{ _minio.base_path }}/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}"
     - "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}"
     - "{{ _minio.base_path }}/.minio/certs/CAs"
+    - "/root/.minio/certs"
+    - "/root/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}"
+    - "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}"
+    - "/root/.minio/certs/CAs"
 
 
 - name: Generate TLS Keys
@@ -56,4 +60,25 @@
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
     - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/CAs/private.key" }
+  when: _minio.bin_type == rpm or _minio.bin_type == bin
+
+
+- name: Copy File with Owner and Permissions
+  copy:
+    src: "{{ item.org }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ _minio.user }}"
+    group: "{{ _minio.group }}"
+    mode: 0644
+    remote_src: yes
+  with_items:
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/CAs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/CAs/private.key" }
+  when: _minio.bin_type == docker
 

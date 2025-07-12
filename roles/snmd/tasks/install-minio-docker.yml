@@ -1,0 +1,7 @@
+---
+- name: Pull MinIO Docker
+  shell: |
+    docker image pull quay.io/minio/minio:RELEASE.{{ _minio.bin_release_date }}
+  register: pull_minio_docker
+- debug: msg={{ pull_minio_docker }}
+

@@ -26,6 +26,6 @@
     enabled: yes
   register: start_docker
   until: start_docker is succeeded
-  retries: 10
+  retries: 5
 - debug: msg={{ start_docker }}
 

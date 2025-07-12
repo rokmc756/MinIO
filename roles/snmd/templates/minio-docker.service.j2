@@ -1,0 +1,30 @@
+[Unit]
+Description=MinIO Docker Container
+After=minio-docker.service
+Requires=minio-docker.service
+
+[Service]
+ExecStart=/usr/bin/docker run \
+  --name minio \
+  -p {{ _minio.api_port }}:{{ _minio.api_port }} \
+  -p {{ _minio.console_port }}:{{ _minio.console_port }} \
+{% for d in _minio.volumes %}
+  -v {{ d.dir }}:{{ d.dt_alias }} \
+{% endfor %}
+  -v /root/.minio/certs:/root/.minio/certs \
+  -e MINIO_CERT_DIR=/root/.minio/certs \
+  -e MINIO_ROOT_USER={{ _minio.root_user }} \
+  -e MINIO_ROOT_PASSWORD={{ _minio.root_password }} \
+  minio/minio:RELEASE.{{ _minio.bin_release_date }} \
+  server {{ _minio.volumes | map(attribute='dt_alias') | join(' ') }} \
+  --certs-dir /root/.minio/certs/CAs \
+  --console-address ":{{ _minio.console_port }}"
+
+ExecStop=/bin/bash -c "/usr/bin/docker stop minio ; /usr/bin/docker rm minio"
+ExecReload=/usr/bin/docker restart minio
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

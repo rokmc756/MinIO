@@ -1,0 +1,18 @@
+---
+- name: Stopping MinIO
+  systemd:
+    name: minio
+    state: stopped
+  ignore_errors: true
+
+
+- name: Uninstall MinIO Package
+  yum: name={{ item }} state=absent
+  with_items:
+    - minio
+
+
+- name: Force Systemd to Reload Configs
+  systemd:
+    daemon_reload: yes
+

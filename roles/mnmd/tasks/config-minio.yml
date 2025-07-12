@@ -31,22 +31,31 @@
     msg: _minio.access_key and _minio.secret_key must be defined and is not empty
 
 
-- name: Copy Defaults Options Template
-  template:
-    src: minio_opt.j2
-    dest: /etc/default/{{ _minio.service }}
+#- name: Copy Defaults Options Template
+#  template:
+#    src: minio_opt.j2
+#    dest: /etc/default/{{ _minio.service }}
 
 
-- name: Copy Systemd Service Template
-  template:
-    src: minio.service.j2
-    dest: /etc/systemd/system/{{ _minio.service }}.service
+#- name: Copy Systemd Service Template
+#  template:
+#    src: minio.service.j2
+#    dest: /etc/systemd/system/{{ _minio.service }}.service
 
 
-- name: Start MinIO
-  systemd: name={{ _minio.service }} state=started enabled=yes daemon_reload=yes
+#- name: Start MinIO
+#  systemd: name={{ _minio.service }} state=started enabled=yes daemon_reload=yes
 
 
-- name: Force to Restart MinIO Server
-  meta: flush_handlers
+#- name: Force to Restart MinIO Server
+#  meta: flush_handlers
 
+
+- name: Configure MinIO
+  import_tasks: config-minio-bin.yml
+  when: _minio.bin_type == "rpm" or _minio.bin_type == "bin"
+
+
+- name: Configure MinIO Docker
+  import_tasks: config-minio-docker.yml
+  when: _minio.bin_type == "docker"

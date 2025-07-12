@@ -3,6 +3,7 @@
   mount:
     path: "{{ item.dir }}"
     state: absent
+  ignore_errors: true
   loop: "{{ _minio.volumes }}"
 
 
@@ -15,6 +16,7 @@
     - "/usr/lib/systemd/system/{{ _minio.service }}-check.service"
     - "/etc/default/{{ _minio.service }}"
     - "/etc/systemd/system/{{ _minio.service }}.service"
+    - "/etc/systemd/system/{{ _minio.service }}-docker.service"
     - "{{ _minio.config }}"
     - "{{ _minio.bin }}"
     - "{{ minio_bin }}"

@@ -1,50 +1,60 @@
 ---
-- name: Stopping NGINX
-  service:
-    name: nginx
-    state: stopped
-  register: stop_nginx
-  ignore_errors: true
+#- name: Stopping NGINX
+#  service:
+#    name: nginx
+#    state: stopped
+#  register: stop_nginx
+#  ignore_errors: true
+#
+#
+#- name: Uninstall NGINX Package
+#  yum: name={{ item }} state=absent
+#  with_items:
+#    - "nginx-core"
+#    - "{{ _nginx.package }}"
+#
+#
+#- name: Remove NGINX Repository ( And Clean Up Left-Over Metadata )
+#  yum_repository:
+#    name: epel
+#    file: nginx_repo
+#    state: absent
+#
+#
+#- name: Delete NGINX Config Files
+#  become: true
+#  file:
+#    path: "{{ item }}"
+#    state: absent
+#  with_items:
+#    - "/etc/nginx/conf.d/default.conf"
+#    - "/etc/nginx/nginx.conf"
 
 
-- name: Uninstall NGINX Package
-  yum: name={{ item }} state=absent
-  with_items:
-    - "nginx-core"
-    - "{{ _nginx.package }}"
+#- name: Stopping MinIO
+#  systemd:
+#    name: minio
+#    state: stopped
+#  ignore_errors: true
+#
+#
+#- name: Uninstall MinIO Package
+#  yum: name={{ item }} state=absent
+#  with_items:
+#    - minio
+#
+#
+#- name: Force Systemd to Reload Configs
+#  systemd:
+#    daemon_reload: yes
 
 
-- name: Remove NGINX Repository ( And Clean Up Left-Over Metadata )
-  yum_repository:
-    name: epel
-    file: nginx_repo
-    state: absent
+- name: Uninstall MinIO
+  import_tasks: uninstall-minio-bin.yml
+  when: _minio.bin_type == "rpm" or _minio.bin_type == "bin"
 
 
-- name: Delete NGINX Config Files
-  become: true
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - "/etc/nginx/conf.d/default.conf"
-    - "/etc/nginx/nginx.conf"
-
-
-- name: Stopping MinIO
-  systemd:
-    name: minio
-    state: stopped
-  ignore_errors: true
-
-
-- name: Uninstall MinIO Package
-  yum: name={{ item }} state=absent
-  with_items:
-    - minio
-
-
-- name: Force Systemd to Reload Configs
-  systemd:
-    daemon_reload: yes
+- name: Install MinIO Docker
+  import_tasks: uninstall-minio-docker.yml
+  when: _minio.bin_type == "docker"
 

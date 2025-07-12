@@ -13,6 +13,24 @@
     - "{{ _minio.base_path }}/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}"
     - "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}"
     - "{{ _minio.base_path }}/.minio/certs/CAs"
+  when: _minio.bin_type is defined and _minio.bin_type != "docker"
+
+
+- name: Create Root SSL Directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ _minio.user }}"
+    group: "{{ _minio.group }}"
+  register: create_root_ssl_dir
+  with_items:
+    - "{{ _ssl.ssl_dir }}"
+    - "/root/.minio/certs"
+    - "/root/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}"
+    - "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}"
+    - "/root/.minio/certs/CAs"
+  when: _minio.bin_type is defined and _minio.bin_type == "docker"
 
 
 - name: Generate TLS Keys
@@ -63,4 +81,26 @@
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
     - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/CAs/private.key" }
+  when: _minio.bin_type is defined and _minio.bin_type != "docker"
+
+
+- name: Copy File with Owner and Permissions
+  copy:
+    src: "{{ item.org }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ _minio.user }}"
+    group: "{{ _minio.group }}"
+    mode: 0644
+    remote_src: yes
+  with_items:
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
+    - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/CAs/public.crt" }
+    - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/CAs/private.key" }
+  when: _minio.bin_type is defined and _minio.bin_type == "docker"
+
 

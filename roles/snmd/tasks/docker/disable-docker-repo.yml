@@ -6,7 +6,7 @@
     enabled: no
   register: disable_docker
   until: disable_docker is succeeded
-  retries: 10
+  retries: 5
 - debug: msg={{ disable_docker }}
 
 

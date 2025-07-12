@@ -1,0 +1,19 @@
+---
+- name: Stopping MinIO Docker
+  systemd:
+    name: minio-docker
+    state: stopped
+  ignore_errors: true
+
+
+- name: Force Remove Docker Imgages at Once
+  shell: |
+    for i in `docker images | sed 1d | awk '{print $3}'`; do docker image rm $i --force ; done
+  register: force_remove_docker_images
+  ignore_errors: true
+
+
+- name: Force Systemd to Reload Configs
+  systemd:
+    daemon_reload: yes
+
