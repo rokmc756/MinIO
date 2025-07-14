@@ -61,3 +61,31 @@
   with_items: "{{ ansible_all_ipv4_addresses }}"
   when: "item | ansible.utils.ipaddr( minio_network_range )"
 
+
+- name: Define NGINX Endpoint Protocol and Warp Options
+  set_fact:
+    nginx_endpoint_proto: "https"
+    nginx_warp_option: "--insecure --tls"
+  when: _nginx.ssl.enable == true
+
+
+- name: Define NGINX Endpoint Protocol and Warp Options
+  set_fact:
+    nginx_endpoint_proto: "http"
+    nginx_warp_option: ""
+  when: _nginx.ssl.enable == false
+
+
+- name: Define MinIO Endpoint Protocol
+  set_fact:
+    minio_endpoint_proto: "https"
+    minio_warp_option: "--insecure --tls"
+  when: _minio.ssl == true
+
+
+- name: Define MinIO Endpoint Protocol
+  set_fact:
+    minio_endpoint_proto: "http"
+    minio_warp_option: ""
+  when: _minio.ssl == false
+

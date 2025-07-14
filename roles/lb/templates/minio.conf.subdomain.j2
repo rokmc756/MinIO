@@ -21,16 +21,29 @@ upstream minio_console {
 server {
 
     listen {{ _nginx.http_port }};
+{% if _nginx.ssl.enable == true %}
     server_name {{ _nginx.minio.console.hostname }}.{{ _nginx.minio.console.domain }};
     return 301 https://$host$request_uri;
+{% endif %}
 
 }
 
 
 server {
 
+{% if _nginx.ssl.enable == true %}
+   listen       {{ _nginx.https_port }} ssl;
+   listen  [::]:{{ _nginx.https_port }} ssl;
+
+   ssl_certificate /etc/nginx/certs/nginx-minio-api-selfsigned.crt;
+   ssl_certificate_key /etc/nginx/certs/nginx-minio-api-selfsigned.key;
+
+   ssl_protocols       TLSv1.2 TLSv1.3;
+   ssl_ciphers         HIGH:!aNULL:!MD5;
+{% else %}
    listen       {{ _nginx.http_port }};
    listen  [::]:{{ _nginx.http_port }};
+{% endif %}
 
    # error_log /var/log/nginx/api.log debug;
    server_name {{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }};
@@ -52,7 +65,6 @@ server {
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
-
       proxy_connect_timeout 300;
 
       # Default is HTTP/1, keepalive is only enabled in HTTP/1.1
@@ -61,7 +73,11 @@ server {
       chunked_transfer_encoding off;
 
       # proxy_cookie_domain api-minio.jtest.pivotal.io .jtest.pivotal.io;
+{% if _minio.ssl == true %}
       proxy_pass https://minio_api; # This uses the upstream directive definition to load balance
+{% else %}
+      proxy_pass http://minio_api; # This uses the upstream directive definition to load balance
+{% endif %}
 
    }
 
@@ -70,6 +86,7 @@ server {
 
 server {
 
+{% if _nginx.ssl.enable == true %}
    listen       {{ _nginx.https_port }} ssl;
    listen  [::]:{{ _nginx.https_port }} ssl;
 
@@ -78,6 +95,10 @@ server {
 
    ssl_protocols       TLSv1.2 TLSv1.3;
    ssl_ciphers         HIGH:!aNULL:!MD5;
+{% else %}
+   listen       {{ _nginx.http_port }};
+   listen  [::]:{{ _nginx.http_port }};
+{% endif %}
 
    # error_log /var/log/nginx/console.log debug;
    server_name {{ _nginx.minio.console.hostname }}.{{ _nginx.minio.console.domain }};
@@ -99,8 +120,7 @@ server {
        proxy_set_header Host $http_host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       # proxy_set_header X-Forwarded-Proto $scheme;
-       proxy_set_header X-Forwarded-Port https;
+       proxy_set_header X-Forwarded-Proto $scheme;
        proxy_set_header X-NginX-Proxy true;
 
        # This is necessary to pass the correct IP to be hashed
@@ -115,8 +135,13 @@ server {
 
        chunked_transfer_encoding off;
 
+{% if _minio.ssl == true %}
        proxy_pass https://minio_console;  # Trailing slash is important
+{% else %}
+       proxy_pass http://minio_console;  # Trailing slash is important
+{% endif %}
 
+{% if _nginx.ssl.enable == true %}
        # SSL verification for upstream
        proxy_ssl_verify off;
 
@@ -127,6 +152,7 @@ server {
        # Eanble passing of the server name through TLS Server Name Indication extension (SNI, RFC 6066)
        # when establishing a connection with the proxied HTTPs Server
        # proxy_ssl_session_reuse on;
+{% endif %}
 
        # Prevent caching
        # add_header Cache-Control "no-store";

@@ -1,21 +1,22 @@
 ---
 - name: Enable NGINX SSL
   import_tasks: enable-nginx-ssl.yml
+  when: _nginx.ssl.enable == true
 
 
-#- name: Add NGINX Repo
-#  yum_repository:
-#    name: nginx
-#    description: NGINX YUM Repository
-#    baseurl: >
-#      http://nginx.org/packages/{{(ansible_distribution == "RedHat") |
-#      ternary('rhel', 'centos')}}/{{ ansible_distribution_major_version }}/$basearch/
-#    gpgkey: https://nginx.org/keys/nginx_signing.key
-#    gpgcheck: yes
+- name: Add NGINX Repo
+  yum_repository:
+    name: nginx
+    description: NGINX YUM Repository
+    baseurl: >
+      http://nginx.org/packages/{{(ansible_distribution == "RedHat") |
+      ternary('rhel', 'centos')}}/{{ ansible_distribution_major_version }}/$basearch/
+    gpgkey: https://nginx.org/keys/nginx_signing.key
+    gpgcheck: yes
 
 
-#- name: Installing NGINX
-#  yum: name={{ nginx_package }} validate_certs=no
+- name: Installing NGINX
+  yum: name={{ _nginx.package }} validate_certs=no
 
 
 - name: Copy NGINX Config

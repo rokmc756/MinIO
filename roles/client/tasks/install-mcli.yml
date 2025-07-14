@@ -29,7 +29,7 @@
 
 - name: Set MinIO Service Alias
   shell: |
-    {{ _mcli.bin }} alias set myminio {{ _mcli.config_opts.hosts.minio.url }} {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
+    {{ _mcli.bin }} alias set myminio {{ minio_endpoint_proto }}://{{ _mcli.config_opts.hosts.minio.url }} {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
   register: set_minio_svc_alias
   args:
     creates: "{{ _mcli.config }}"
@@ -40,7 +40,7 @@
 
 - name: Set MinIO Service Alias
   shell: |
-    {{ _mcli.bin }} alias set myminio http://minio-api.jtest.pivotal.io {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
+    {{ _mcli.bin }} alias set myminio {{ nginx_endpoint_proto }}://{{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }} {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
   register: set_minio_svc_alias
   args:
     creates: "{{ _mcli.config }}"

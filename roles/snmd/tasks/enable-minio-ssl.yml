@@ -17,6 +17,7 @@
     - "/root/.minio/certs/{{ inventory_hostname }}.{{ _minio.domain }}"
     - "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}"
     - "/root/.minio/certs/CAs"
+  when: _minio.ssl is defined and _minio.ssl == true
 
 
 - name: Generate TLS Keys
@@ -28,6 +29,7 @@
     chdir: "{{ _ssl.ssl_dir }}"
   environment:
     PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+  when: _minio.ssl is defined and _minio.ssl == true
 
 
 - name: Change Permission of SSL Key Files
@@ -40,7 +42,7 @@
   with_items:
     - "private.key"
     - "public.crt"
-  when: _snmd.proto is defined and _snmd.proto == "https"
+  when: _minio.ssl is defined and _minio.ssl == true
 
 
 - name: Copy File with Owner and Permissions
@@ -60,7 +62,7 @@
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
     - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "{{ _minio.base_path }}/.minio/certs/CAs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "{{ _minio.base_path }}/.minio/certs/CAs/private.key" }
-  when: _minio.bin_type is defined and _minio.bin_type != "docker"
+  when: ( _minio.ssl is defined and _minio.ssl == true ) and (  _minio.bin_type is defined and _minio.bin_type != "docker" )
 
 
 - name: Copy File with Owner and Permissions
@@ -80,5 +82,5 @@
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/minio-vm-lb.{{ _minio.domain }}/private.key" }
     - { org: "{{ _ssl.ssl_dir }}/public.crt",  dest: "/root/.minio/certs/CAs/public.crt" }
     - { org: "{{ _ssl.ssl_dir }}/private.key", dest: "/root/.minio/certs/CAs/private.key" }
-  when: _minio.bin_type is defined and _minio.bin_type == "docker"
+  when: ( _minio.ssl is defined and _minio.ssl == true ) and (  _minio.bin_type is defined and _minio.bin_type == "docker" )
 

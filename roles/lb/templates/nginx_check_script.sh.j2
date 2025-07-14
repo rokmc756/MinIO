@@ -14,7 +14,7 @@ fi
 # Check HTTPS response (ignoring cert issues with -k)
 curl -skf --max-time 10 "$NGINX_URL" > /dev/null
 if [ $? -ne 0 ]; then
-    # echo "[FAIL] NGINX not responding on HTTPS $NGINX_URL"
+    # echo "[FAIL] NGINX not responding on $NGINX_URL:$NGINX_PORT"
     exit 1
 fi
 

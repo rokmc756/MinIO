@@ -7,7 +7,7 @@ _minio:
   cluster_name: jack-kr-minio
   domain: "jtest.pivotal.io"
   download: false
-  bin_type: docker  # rpm, bin
+  bin_type: docker # rpm, bin
   release_date: 20250422221226.0.0        # Last Release to Support Full Feature which License is not Required
   bin_release_date: 2025-04-22T22-12-26Z
   patch_version: 1
@@ -28,8 +28,7 @@ _minio:
   listen_address: 0.0.0.0
   api_port: 9000
   console_port: 9001
-  http_port: 80
-  https_port: 443
+  ssl: true
   ec:
     stripe_size: 16
     parity: 4
@@ -64,6 +63,34 @@ _minio:
   # python -c "import uuid; print str(uuid.uuid4().get_hex().upper()[0:20])"
   # python -c "import uuid; print str(uuid.uuid4().get_hex()[0:40])"
 
+_nginx:
+  user: nginx
+  group: nginx
+  package: nginx
+  worker_processes: "{{ ( ansible_processor_vcpus is defined) | ternary( ansible_processor_vcpus, 'auto') }}"
+  worker_connections: 1024
+  nodes: []
+  max_body_size: 128m
+  ssl:
+    enable: false
+    dir: /etc/nginx/certs
+  http_port: 80
+  https_port: 443
+  minio:
+    api:
+      hostname: minio-api
+      domain: jtest.pivotal.io
+      listen_port: 80
+      frontend_port: 9000
+      backend_port: 9000
+      balance: leastconn
+    console:
+      hostname: minio-console
+      domain: jtest.pivotal.io
+      listen_port: 443
+      frontend_port: 9001
+      backend_port: 9001
+      balance: leastconn
 
 _certgen:
   download: false
@@ -73,7 +100,6 @@ _certgen:
   patch_version: 0
   os: linux
   arch: amd64
-
 
 _ssl:
   ssl_dir: "{{ _minio.base_path }}/certs"
@@ -86,12 +112,10 @@ _ssl:
   ssl_common_name: "jtest.pivotal.io"
   ssl_email: "jomoon@pivotal.io"
 
-
 _common:
   sudo_user: jomoon
   sudo_group: jomoon
   sudo_user_home_dir: "/home/jomoon"
-
 
 _vmware:
   esxi_hostname: "192.168.0.231"

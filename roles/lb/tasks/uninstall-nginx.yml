@@ -8,18 +8,18 @@
   ignore_errors: true
 
 
-#- name: Uninstall NGINX Package
-#  yum: name={{ item }} state=absent
-#  with_items:
-#    - "{{ nginx_package }}"
-#    - "nginx-core"
+- name: Uninstall NGINX Package
+  yum: name={{ item }} state=absent
+  with_items:
+    - "{{ _nginx.package }}"
+    - "nginx-core"
 
 
-#- name: Remove NGINX Repository ( and clean up left-over metadata )
-# yum_repository:
-#    name: epel
-#    file: nginx_repo
-#    state: absent
+- name: Remove NGINX Repository ( and clean up left-over metadata )
+  yum_repository:
+    name: epel
+    file: nginx_repo
+    state: absent
 
 
 - name: Delete NGINX Config Files

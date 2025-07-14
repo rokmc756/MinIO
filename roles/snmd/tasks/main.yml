@@ -28,7 +28,7 @@
 
 
 - name: Enable SSL
-  import_tasks: enable-ssl.yml
+  import_tasks: enable-minio-ssl.yml
   tags: enable, install
   when: (( ssl is defined and ssl == true ) or ( snmd_all is defined and snmd_all == true )) and inventory_hostname in groups['workers']
 

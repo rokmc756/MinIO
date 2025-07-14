@@ -12,7 +12,7 @@ _mc:
   config_opts:
     hosts:
       minio:
-        url: https://{{ ansible_host | default('localhost') }}:{{ _minio.api_port }}
+        url: "{{ ansible_host | default('localhost') }}:{{ _minio.api_port }}"
         accessKey: "{{ _minio.access_key }}"
         secretKey: "{{ _minio.secret_key }}"
         api: S3v4
@@ -30,7 +30,7 @@ _mcli:
   config_opts:
     hosts:
       minio:
-        url: https://{{ ansible_host | default('localhost') }}:{{ _minio.api_port }}
+        url: "{{ ansible_host | default('localhost') }}:{{ _minio.api_port }}"
         accessKey: "{{ _minio.access_key }}"
         secretKey: "{{ _minio.secret_key }}"
         api: S3v4

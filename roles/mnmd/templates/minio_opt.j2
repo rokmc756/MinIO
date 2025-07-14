@@ -1,5 +1,9 @@
 # Local Export path.
+{% if _minio.ssl == true %}
 MINIO_VOLUMES="https://{{ hostname_prefix }}{1...{{ last_host_num }}}.{{ _minio.domain }}:{{ _minio.api_port }}{{ data_prefix }}{1...{{ nvme_count_min_value }}}"
+{% else %}
+MINIO_VOLUMES="http://{{ hostname_prefix }}{1...{{ last_host_num }}}.{{ _minio.domain }}:{{ _minio.api_port }}{{ data_prefix }}{1...{{ nvme_count_min_value }}}"
+{% endif %}
 
 # Use if you want to run Minio on a custom port.
 # MINIO_OPTS="--certs-dir={{ _minio.base_path }}/certs --console-address {{ _minio.listen_address }}:{{ _minio.console_port }}"
@@ -10,7 +14,11 @@ MINIO_ROOT_PASSWORD={{ _minio.root_password }}
 
 MINIO_STORAGE_CLASS_STANDARD=EC:{{ _minio.ec.parity }}
 
-# MINIO_DEBUG=on
-# MINIO_CERT_DIR="{{ _minio.base_path }}/certs"
+#MINIO_DEBUG=on
+#MINIO_CERT_DIR="{{ _minio.base_path }}/certs"
+#{% if _minio.ssl == true %}
 # MINIO_SERVER_URL="https://{{ inventory_hostname }}.{{ _minio.domain }}:{{ _minio.api_port }}"
+#{% else %}
+# MINIO_SERVER_URL="http://{{ inventory_hostname }}.{{ _minio.domain }}:{{ _minio.api_port }}"
+#{% endif %}
 

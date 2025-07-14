@@ -11,7 +11,7 @@ server {
 
     location / {
 
-        proxy_pass http://{{ inventory_hostname }}.{{ _minio.domain }};
+        proxy_pass http://{{ ansible_fqdn }};
         # proxy_pass http://minio;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

@@ -29,31 +29,31 @@ _haproxy:
       balance: leastconn
 
 
-_nginx:
-  user: nginx
-  group: nginx
-  package: nginx
-  worker_processes: "{{ ( ansible_processor_vcpus is defined) | ternary( ansible_processor_vcpus, 'auto') }}"
-  worker_connections: 4096
-  nodes: []
-  max_body_size: 128m
-  http_port: 80
-  https_port: 443
-  minio:
-    api:
-      hostname: minio-api
-      domain: jtest.pivotal.io
-      listen_port: 80
-      frontend_port: 9000
-      backend_port: 9000
-      balance: leastconn
-    console:
-      hostname: minio-console
-      domain: jtest.pivotal.io
-      listen_port: 443
-      frontend_port: 9001
-      backend_port: 9001
-      balance: leastconn
+#_nginx:
+#  user: nginx
+#  group: nginx
+#  package: nginx
+#  worker_processes: "{{ ( ansible_processor_vcpus is defined) | ternary( ansible_processor_vcpus, 'auto') }}"
+#  worker_connections: 4096
+#  nodes: []
+#  max_body_size: 128m
+#  http_port: 80
+#  https_port: 443
+#  minio:
+#    api:
+#      hostname: minio-api
+#      domain: jtest.pivotal.io
+#      listen_port: 80
+#      frontend_port: 9000
+#      backend_port: 9000
+#      balance: leastconn
+#    console:
+#      hostname: minio-console
+#      domain: jtest.pivotal.io
+#      listen_port: 443
+#      frontend_port: 9001
+#      backend_port: 9001
+#      balance: leastconn
 
 
 # Variables for Role Keepalived

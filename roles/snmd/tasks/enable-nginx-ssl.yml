@@ -1,0 +1,48 @@
+---
+- name: Create SSL Directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ _nginx.user }}"
+    group: "{{ _nginx.group }}"
+  register: create_ssl_dir
+  with_items:
+    - "{{ _nginx.ssl.dir }}"
+
+
+- name: Generate TLS Keys
+  shell: |
+    certgen -host "localhost,{{ ansible_fqdn }}"
+  register: gen_tls_keys
+  args:
+    executable: /bin/bash
+    chdir: "{{ _nginx.ssl.dir }}"
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+
+
+- name: Change Permission of SSL Key Files
+  file:
+    path: "{{ _nginx.ssl.dir }}/{{ item }}"
+    state: file
+    owner: "{{ _nginx.user }}"
+    group: "{{ _nginx.group }}"
+    mode: "0600"
+  with_items:
+    - "private.key"
+    - "public.crt"
+
+
+#- name: Copy File with Owner and Permissions
+#  copy:
+#    src: "{{ item.org }}"
+#    dest: "{{ item.dest }}"
+#    owner: "{{ _nginx.user }}"
+#    group: "{{ _nginx.group }}"
+#    mode: 0644
+#    remote_src: yes
+#  with_items:
+#    - { org: "{{ _nginx.ssl.dir }}/public.crt",  dest: "{{ _nginx.ssl.dir }}/public.crt" }
+#    - { org: "{{ _nginx.ssl.dir }}/private.key", dest: "{{ _nginx.ssl.dir }}/private.key" }
+

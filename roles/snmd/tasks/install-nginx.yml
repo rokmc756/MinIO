@@ -1,4 +1,8 @@
 ---
+- import_tasks: enable-nginx-ssl.yml
+  when: _nginx.ssl.enable == true
+
+
 - name: Add NGINX Repo
   yum_repository:
     name: nginx

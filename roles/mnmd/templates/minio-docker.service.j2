@@ -11,11 +11,17 @@ ExecStart=/usr/bin/docker run \
 {% for d in _minio.volumes %}
   -v {{ d.dir }}:{{ d.dt_alias }} \
 {% endfor %}
+{% if _minio.ssl == true %}
   -v /root/.minio/certs:/root/.minio/certs -e MINIO_CERT_DIR=/root/.minio/certs \
+{% endif %}
   -e MINIO_ROOT_USER={{ _minio.root_user }} -e MINIO_ROOT_PASSWORD={{ _minio.root_password }} \
   minio/minio:RELEASE.{{ _minio.bin_release_date }} \
+{% if _minio.ssl == true %}
   server https://{{ hostname_prefix }}{1...{{ last_host_num }}}.{{ _minio.domain }}:{{ _minio.api_port }}{{ data_prefix }}{1...{{ nvme_count_min_value }}} \
   --certs-dir /root/.minio/certs/CAs \
+{% else %}
+  server http://{{ hostname_prefix }}{1...{{ last_host_num }}}.{{ _minio.domain }}:{{ _minio.api_port }}{{ data_prefix }}{1...{{ nvme_count_min_value }}} \
+{% endif %}
   --console-address ":{{ _minio.console_port }}"
 
 ExecStop=/bin/bash -c "/usr/bin/docker stop minio ; /usr/bin/docker rm minio"

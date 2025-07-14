@@ -5,11 +5,11 @@
     state: stopped
 
 
-- name: Stop and Remove Docker Imgages
-  shell: |
-    docker stop minio && docker rm minio
-  register: stop_docker_image
-  ignore_errors: true
+#- name: Stop and Remove Docker Imgages
+#  shell: |
+#    docker stop minio && docker rm minio
+#  register: stop_docker_image
+#  ignore_errors: true
 
 
 - name: Force Remove Docker Imgages at Once
