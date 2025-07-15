@@ -1,12 +1,78 @@
 ---
-#_nginx:
-#  user: nginx
-#  group: nginx
-#  package: nginx
-#  worker_processes: "{{ ( ansible_processor_vcpus is defined) | ternary( ansible_processor_vcpus, 'auto') }}"
-#  worker_connections: 1024
-#  nodes: []
-#  max_body_size: 128m
-#  http_port: 80
-#  https_port: 443
+_snmd:
+  proto: https
+
+_kernel:
+  params:
+      # Maximum number of open files/file descriptors
+    - { state: "present",  param : "fs.file-max",                            value : "4194303" }
+
+      # Prioritize application RAM against disk/swap cache
+    - { state: "present",  param : "vm.vfs_cache_pressure",                  value : "10" }
+
+      # Minimum free memory
+    - { state: "present",  param : "vm.min_free_kbytes",                     value : "1000000" }
+    - { state: "present",  param : "kernel.core_uses_pid",                   value : "1" }
+
+      # Maximum receive socket buffer (bytes)
+    - { state: "present",  param : "net.core.rmem_max",                      value : "268435456" }
+
+      # Maximum send buffer socket buffer (bytes)
+    - { state: "present",  param : "net.core.wmem_max",                      value : "268435456" }
+
+      # Default receive buffer socket size (bytes)
+    - { state: "present",  param : "net.core.rmem_default",                  value : "67108864" }
+
+      # Default send buffer socket size (bytes)
+    - { state: "present",  param : "net.core.wmem_default",                  value : "67108864" }
+
+      # Maximum number of packets in one poll cycle
+    - { state: "present",  param : "net.core.netdev_budget",                 value : "1200" }
+
+      # Maximum ancillary buffer size per socket
+    - { state: "present",  param : "net.core.optmem_max",                    value : "134217728" }
+
+      # Maximum number of incoming connections
+    - { state: "present",  param : "net.core.somaxconn",                     value : "65536" }
+
+      # Maximum number of packets queued
+    - { state: "present",  param : "net.core.netdev_max_backlog",            value : "250000" }
+
+      # Maximum read buffer space
+    - { state: "present",  param : "net.ipv4.tcp_rmem",                      value : "67108864 134217728 268435456" }
+
+      # Maximum write buffer space
+    - { state: "present",  param : "net.ipv4.tcp_wmem",                      value : "67108864 134217728 268435456" }
+
+      # Enable low latency mode
+    - { state: "present",  param : "net.ipv4.tcp_low_latency",               value : "1" }
+
+      # Socket buffer portion used for TCP window
+    - { state: "present",  param : "net.ipv4.tcp_adv_win_scale",             value : "1" }
+
+      # Queue length of completely established sockets waiting for accept
+    - { state: "present",  param : "net.ipv4.tcp_max_syn_backlog",           value : "30000" }
+
+      # Maximum number of sockets in TIME_WAIT state
+    - { state: "present",  param : "net.ipv4.tcp_max_tw_buckets",            value : "2000000" }
+
+      # Reuse sockets in TIME_WAIT state when safe
+    - { state: "present",  param : "net.ipv4.tcp_tw_reuse",                  value : "1" }
+
+      # Time to wait (seconds) for FIN packet
+    - { state: "present",  param : "net.ipv4.tcp_fin_timeout",               value : "1" }
+
+      # Disable icmp send redirects
+    - { state: "present",  param : "net.ipv4.conf.all.send_redirects",       value : "0" }
+
+      # Disable icmp accept redirect
+    - { state: "present",  param : "net.ipv4.conf.all.accept_redirects",     value : "0" }
+
+      # Drop packets with LSR or SSR
+    - { state: "present",  param : "net.ipv4.conf.all.accept_source_route",  value : "0" }
+
+      # MTU discovery, only enable when ICMP blackhole detected
+    - { state: "present",  param : "net.ipv4.tcp_mtu_probing",               value : "1" }
+
+# https://min.io/resources/docs/MinIO-Throughput-Benchmarks-on-HDD-24-Node.pdf
 
