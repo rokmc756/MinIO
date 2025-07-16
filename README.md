@@ -448,3 +448,12 @@ $ make minio r=uninstall s=directpv
 - https://mahendrapalla.hashnode.dev/how-to-set-up-a-multi-node-multi-drive-mnmd-minio-cluster-production-ready
 - https://medium.com/@johanesmistrialdo/simple-multinode-multidrive-minio-deployment-f23e09906db1
 
+
+<div class="mx-auto rounded-lg mb-10 max-w-3xl w-full">
+    <div class="video-loader relative" data-video-url="/resources/media/active-active-replication.mp4" data-video-type="raw">
+        <img width="672" height="378" class="rounded-lg shadow-poster w-full cursor-pointer"
+        src="https://min.io/products/active-data-replication-for-object-storage/resources/media/posters/aistor/cover-5.png" alt="Replication" loading="lazy">
+        <div class="text-theme-red m-5 sm:m-8 pl-1 leading-none text-xs sm:text-md font-heading uppercase font-medium absolute left-0 bottom-0 tracking-widest">Active-Active Replication</div>
+    </div>
+</div>
+

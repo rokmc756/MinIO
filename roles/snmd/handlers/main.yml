@@ -30,3 +30,7 @@
 - name: Systemd Daemon Reload
   systemd: daemon_reload=yes
 
+
+- name: Reload Sysctl
+  shell: /sbin/sysctl -p /etc/sysctl.conf
+

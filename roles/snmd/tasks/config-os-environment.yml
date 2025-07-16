@@ -1,0 +1,12 @@
+---
+- name: Modify /etc/sysctl.d/98-sysctl-minio.conf
+  lineinfile:
+    dest: /etc/sysctl.d/98-sysctl-minio.conf
+    regexp: "^{{ item.param }}"
+    line: "{{ item.param }} = {{ item.value }}"
+    state: "{{ item.state }}"
+    create: yes
+  with_items: "{{ _kernel.params }}"
+  notify:
+    - Reload Sysctl
+
