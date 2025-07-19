@@ -1,14 +1,26 @@
 ---
+#- name: Show interface names except loopback
+#  debug:
+#    msg: "{{ ansible_interfaces | difference(['lo','lo:1','lo:2']) }}"
+# - meta: end_play
+
+
 - name: Get Network Interface name From Prefix of IP Addresses Provided
   set_fact:
-    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr0 ) | map(attribute='device') | first }}"
-    netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr1 ) | map(attribute='device') | first }}"
+    netdev0: "{{ ansible_interfaces | difference(['lo','lo_1','lo_2']) | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev1: "{{ ansible_interfaces | difference(['lo','lo_1','lo_2']) | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _minio.net.ipaddr1 ) | map(attribute='device') | first }}"
 
 
 - name: Get IP Address from Provided Network Device Name
   set_fact:
     ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
     ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
+
+
+- debug: msg={{ netdev0 }}
+- debug: msg={{ netdev1 }}
+- debug: msg={{ ipaddr0 }}
+- debug: msg={{ ipaddr1 }}
 
 
 - name: Define Facts For All Hostname
@@ -39,6 +51,11 @@
     minio_ip_addr_range: "{{ item }}"
   with_items: "{{ ansible_all_ipv4_addresses }}"
   when: "item | ansible.utils.ipaddr( minio_network_range )"
+
+
+- name: Define Fact of HAProxy Check Script Name
+  set_fact:
+    _check_script_name: "haproxy_check_script"
 
 
 - name: Define Fact of HAProxy Check Script Name

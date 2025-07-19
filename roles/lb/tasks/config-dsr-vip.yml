@@ -1,0 +1,130 @@
+--- 
+- name: Apply Kernel Parameters for Direct Routing Virutal IP Address
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+    - { key: "net.ipv4.conf.lo.arp_ignore" ,   value: "1" }
+    - { key: "net.ipv4.conf.lo.arp_announce",  value: "2" }
+    - { key: "net.ipv4.conf.all.arp_ignore" ,   value: "1" }
+    - { key: "net.ipv4.conf.all.arp_announce",  value: "2" }
+  notify:
+    - Reload Sysctl
+
+
+- name: Configure Virutal IP Address for Direct Routing
+  shell: |
+    ifconfig lo:{{ item.netidx }} {{ item.ipaddr.split('/')[:-1] | join('/') }} netmask 255.255.255.255
+  register: config_direct_routing_vip
+  with_items: "{{ _keepalived.shared_ips }}"
+  # ifconfig lo:1
+
+
+# https://www.lisenet.com/2015/setting-up-a-load-balancing-haproxy-cluster-with-keepalived
+# https://docs.oracle.com/en/operating-systems/oracle-linux/6/admin/section_wkd_ys2_4r.html
+
+
+# Here’s a full HAProxy + IPVS (LVS) configuration example to implement Direct Server Return (DSR) in Layer 4 TCP mode across 5 backend nodes, using ipvsadm.
+# This setup uses:
+#
+# HAProxy as the director/load balancer
+# IPVS via ipvsadm to manage kernel-level load balancing
+#
+# DSR (Direct Server Return): HAProxy or IPVS sends the request, but the backend replies directly to the client, bypassing the load balancer on the return path.
+
+# Example Environment
+# Role	IP Address
+# Virtual IP (VIP)	192.168.100.100
+# HAProxy Node	192.168.100.1
+# Backend1	192.168.100.11
+# Backend2	192.168.100.12
+# Backend3	192.168.100.13
+# Backend4	192.168.100.14
+# Backend5	192.168.100.15
+
+
+# All nodes are on the same subnet.
+#
+# 1. IPVS DSR Configuration with ipvsadm
+# Run this on the HAProxy/Director node (192.168.100.1):
+#
+# Add the virtual service
+# ipvsadm -A -t 192.168.100.100:80 -s rr
+#
+# Add the 5 real servers in DSR mode (ipip/tunl0 or direct)
+# ipvsadm -a -t 192.168.100.100:80 -r 192.168.100.11:80 -g
+# ipvsadm -a -t 192.168.100.100:80 -r 192.168.100.12:80 -g
+# ipvsadm -a -t 192.168.100.100:80 -r 192.168.100.13:80 -g
+# ipvsadm -a -t 192.168.100.100:80 -r 192.168.100.14:80 -g
+# ipvsadm -a -t 192.168.100.100:80 -r 192.168.100.15:80 -g
+
+
+# View the configuration
+# ipvsadm -L -n
+# The -g option uses gateway mode, which enables Direct Server Return (DSR).
+#
+# 2. Backend Server Configuration (all 5 nodes)
+# Each backend node must:
+#
+# Respond to the VIP locally.
+#
+# Avoid sending ARP for the VIP.
+#
+# Accept traffic to VIP and respond directly to client.
+#
+# Add this on each backend node:
+#
+# Add VIP to loopback (no broadcast, no ARP)
+# ip addr add 192.168.100.100/32 dev lo
+
+
+#
+# Disable ARP for VIP
+# echo 1 > /proc/sys/net/ipv4/conf/lo/arp_ignore
+# echo 2 > /proc/sys/net/ipv4/conf/lo/arp_announce
+
+# echo 1 > /proc/sys/net/ipv4/conf/all/arp_ignore
+# echo 2 > /proc/sys/net/ipv4/conf/all/arp_announce
+
+# Make it permanent (optional)
+# cat <<EOF >> /etc/sysctl.conf
+# net.ipv4.conf.lo.arp_ignore = 1
+# net.ipv4.conf.lo.arp_announce = 2
+# net.ipv4.conf.all.arp_ignore = 1
+# net.ipv4.conf.all.arp_announce = 2
+# EOF
+
+# 3. HAProxy Layer 4 (TCP) Example (optional if using IPVS alone)
+# This is optional if you rely fully on IPVS. If you want HAProxy for observability or health checks, here's an example.
+#
+# haproxy
+# frontend tcp_in
+#   bind 192.168.100.100:80
+#   mode tcp
+#   default_backend tcp_servers
+#
+# backend tcp_servers
+#   mode tcp
+#   balance source
+#   option tcp-check
+#   server srv1 192.168.100.11:80 check send-proxy
+#   server srv2 192.168.100.12:80 check send-proxy
+#   server srv3 192.168.100.13:80 check send-proxy
+#   server srv4 192.168.100.14:80 check send-proxy
+#   server srv5 192.168.100.15:80 check send-proxy
+#
+# Packet Flow Summary (DSR)
+# Client → VIP (192.168.100.100) — arrives at HAProxy/IPVS.
+#
+# Director forwards packet to one backend based on round-robin.
+#
+# Backend receives request, sees VIP as destination, and replies directly to client using its own routing table.
+#
+# HAProxy/IPVS not in return path — high throughput, lower latency.
+#
+# Benefits
+# Load balancer isn’t a bottleneck for return traffic.
+#
+# Great for high-performance TCP applications (like video, file serving, MinIO, etc.)
+

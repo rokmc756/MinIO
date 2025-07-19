@@ -31,3 +31,7 @@
 #    - Waiting for Server to Come Back After Reboot
 
 
+# yum install policycoreutils-python
+# semanage port --add --type http_port_t --proto tcp <forward-port>
+# setsebool -P haproxy_connect_any=1
+

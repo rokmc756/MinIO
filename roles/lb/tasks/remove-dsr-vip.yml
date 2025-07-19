@@ -1,0 +1,20 @@
+--- 
+- name: Down Virutal Network Adapter for Direct Routing
+  shell: |
+    ip addr del {{ item.ipaddr.split('/')[:-1] | join('/')  }}/32 dev lo:{{ item.netidx }}
+  register: down_direct_routing_vip
+  ignore_errors: true
+  with_items: "{{ _keepalived.shared_ips }}"
+
+
+- name: Delete Kernel Parameters for Direct Routing Virutal IP Address
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: absent
+  with_items:
+    - { key: "net.ipv4.conf.all.arp_ignore" ,   value: "1" }
+    - { key: "net.ipv4.conf.all.arp_announce",  value: "2" }
+  notify:
+    - Reload Sysctl
+

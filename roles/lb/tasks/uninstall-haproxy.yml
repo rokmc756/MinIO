@@ -28,7 +28,7 @@
 
 - name: Uninstall All RPM Packages for HAProxy
   become: true
-  yum: name={{item}} state=absent
+  yum: name={{ item }} state=absent
   with_items:
    - haproxy
   when: inventory_hostname in groups['lb']
@@ -40,4 +40,9 @@
     path: /etc/haproxy
     state: absent
   when: inventory_hostname in groups['lb']
+
+
+- name: Remove Virtual IP for Direct Service Returns
+  import_tasks: remove-dsr-vip.yml
+  when: _haproxy.minio.api.lb_mode == "gateway" and inventory_hostname in groups['workers']
 

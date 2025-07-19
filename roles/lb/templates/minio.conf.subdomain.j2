@@ -1,7 +1,7 @@
 # Load balance MinIO API (S3)
 upstream minio_api {
 
-   least_conn;
+   {{ _nginx.proxy.lb_method }}
 {% for h in groups['workers'] %}
    server {{ hostvars[h]['ansible_fqdn'] }}:{{ _nginx.minio.api.backend_port }};
 {% endfor %}
@@ -72,6 +72,9 @@ server {
       proxy_set_header Connection "";
       chunked_transfer_encoding off;
 
+{% if _nginx.proxy.direct_route == true %}
+       proxy_redirect off;
+{% endif %}
       # proxy_cookie_domain api-minio.jtest.pivotal.io .jtest.pivotal.io;
 {% if _minio.ssl == true %}
       proxy_pass https://minio_api; # This uses the upstream directive definition to load balance
@@ -135,6 +138,9 @@ server {
 
        chunked_transfer_encoding off;
 
+{% if _nginx.proxy.direct_route == true %}
+       proxy_redirect off;
+{% endif %}
 {% if _minio.ssl == true %}
        proxy_pass https://minio_console;  # Trailing slash is important
 {% else %}

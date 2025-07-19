@@ -71,8 +71,11 @@ _nginx:
   worker_connections: 1024
   nodes: []
   max_body_size: 128m
+  proxy:
+    lb_method: "least_conn;" # ip_hash;, none is rr
+    direct_route: true
   ssl:
-    enable: false
+    enable: true
     dir: /etc/nginx/certs
   http_port: 80
   https_port: 443
@@ -100,6 +103,17 @@ _certgen:
   patch_version: 0
   os: linux
   arch: amd64
+
+
+_minfs:
+  download: false
+  download_url: https://github.com/minio/minfs/releases/download
+
+
+_lxmin:
+  download_url: https://github.com/minio/lxmin
+  # https://blog.min.io/lxmin-minio-multi-node-cluster/
+
 
 _ssl:
   ssl_dir: "{{ _minio.base_path }}/certs"

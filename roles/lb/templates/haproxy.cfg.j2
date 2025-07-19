@@ -55,15 +55,24 @@ frontend minio-service
     default_backend minio-servce-backend
 
 
+{% if _haproxy.minio.api.lb_mode == "lvs" %}
+backend minio-servce-backend
+  balance     {{ _haproxy.minio.api.balance }}
+  mode tcp
+{% for h in groups['workers'] %}
+  server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} check send-proxy
+{% endfor %}
+{% else %}
 backend minio-servce-backend
     option httpchk GET /healthz
     http-check expect status 200
-    mode tcp
+    mode {{ _haproxy.minio.api.lb_mode }}
     option ssl-hello-chk
     balance     {{ _haproxy.minio.api.balance }}
 {% for h in groups['workers'] %}
     server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} check
 {% endfor %}
+{% endif %}
 
 
 frontend minio-console
@@ -73,14 +82,22 @@ frontend minio-console
     default_backend minio-console-backend
 
 
+{% if _haproxy.minio.console.lb_mode == "lvs" %}
+backend minio-console-backend
+  balance     {{ _haproxy.minio.console.balance }}
+  mode tcp
+{% for h in groups['workers'] %}
+  server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} check send-proxy
+{% endfor %}
+{% else %}
 backend minio-console-backend
     option httpchk GET /healthz
     http-check expect status 200
-    mode tcp
+    mode {{ _haproxy.minio.console.lb_mode }}
     option ssl-hello-chk
     balance     {{ _haproxy.minio.console.balance }}
 {% for h in groups['workers'] %}
     server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.console.backend_port }} check
 {% endfor %}
-
+{% endif %}
 

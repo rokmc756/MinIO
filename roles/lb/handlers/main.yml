@@ -37,3 +37,7 @@
 - name: Restart Network
   systemd: name=network state=restart
 
+
+- name: Reload Sysctl
+  shell: sysctl -p
+

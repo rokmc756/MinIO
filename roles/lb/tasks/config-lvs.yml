@@ -1,0 +1,133 @@
+---
+- name: Apply Kernel Parameters for Direct Routing Virutal IP Address
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+    - { key: "net.ipv4.conf.lo.arp_ignore" ,   value: "1" }
+    - { key: "net.ipv4.conf.lo.arp_announce",  value: "2" }
+    - { key: "net.ipv4.conf.all.arp_ignore" ,   value: "1" }
+    - { key: "net.ipv4.conf.all.arp_announce",  value: "2" }
+  when: inventory_hostname in groups['workers']
+  notify: Reload Sysctl
+
+
+- name: Configure Virutal IP Address for Direct Routing
+  shell: |
+    ifconfig lo:{{ item.netidx }} {{ item.ipaddr.split('/')[:-1] | join('/') }} netmask {{ item.netmask }}
+  register: config_direct_routing_vip
+  with_items: "{{ _keepalived.shared_ips }}"
+  when: inventory_hostname in groups['workers']
+
+
+- name: Add Virtual Services
+  shell: |
+    ipvsadm -A -t {{ item.ipaddr.split('/')[:-1] | join('/') }}:{{ item.lvs_src_port }} -s {{ item.lvs_lb_mode }}
+  register: add_virtual_services
+  with_items:
+    - "{{ _keepalived.shared_ips }}"
+    # - { ipaddr: "192.168.1.179/24", lvs_src_port: 80,  lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.179/24", lvs_src_port: 443, lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.180/24", lvs_src_port: 80,  lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.180/24", lvs_src_port: 443, lvs_lb_mode: rr }
+  when: inventory_hostname in groups['lb']
+- debug: msg={{ add_virtual_services }}
+  when: inventory_hostname in groups['lb']
+
+
+- name: Add Active Real Servers ( IPIP/TUN0 or Direct )
+  shell: |
+    ipvsadm -a -t {{ item.ipaddr.split('/')[:-1] | join('/') }}:{{ item.lvs_src_port }} \
+    -r {{ hostvars[inventory_hostname][_netdev].ipv4.address }}:{{ item.lvs_dest_port }} -g
+  delegate_to: "{{ hostvars[groups['lb'][0]]['ansible_hostname'] }}"
+  delegate_facts: True
+  register: add_active_real_servers
+  with_items:
+    - "{{ _keepalived.shared_ips }}"
+    # - { ipaddr: "192.168.1.179/24", lvs_src_port: 80,  lvs_dest_port: 9001, lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.179/24", lvs_src_port: 443, lvs_dest_port: 9001, lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.180/24", lvs_src_port: 80,  lvs_dest_port: 9000, lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.180/24", lvs_src_port: 443, lvs_dest_port: 9000, lvs_lb_mode: rr }
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ add_active_real_servers }}
+  when: inventory_hostname in groups['workers']
+
+
+- name: Backup Active Real Servers ( IPIP/TUN0 or Direct )
+  shell: |
+    ipvsadm -a -t {{ item.ipaddr.split('/')[:-1] | join('/') }}:{{ item.lvs_src_port }} \
+    -r {{ hostvars[inventory_hostname][_netdev].ipv4.address }}:{{ item.lvs_dest_port }} -g
+  delegate_to: "{{ hostvars[groups['lb'][1]]['ansible_hostname'] }}"
+  delegate_facts: True
+  register: add_backup_real_servers
+  with_items:
+    - "{{ _keepalived.shared_ips }}"
+    # - { ipaddr: "192.168.1.179/24", lvs_src_port: 80,  lvs_dest_port: 9001, lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.179/24", lvs_src_port: 443, lvs_dest_port: 9001, lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.180/24", lvs_src_port: 80,  lvs_dest_port: 9000, lvs_lb_mode: rr }
+    # - { ipaddr: "192.168.1.180/24", lvs_src_port: 443, lvs_dest_port: 9000, lvs_lb_mode: rr }
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ add_backup_real_servers }}
+  when: inventory_hostname in groups['workers']
+
+
+- name: List Virtual Services
+  shell: |
+    ipvsadm -Ln
+  register: list_virtual_services
+  when: inventory_hostname in groups['lb']
+- debug: msg={{ list_virtual_services }}
+  when: inventory_hostname in groups['lb']
+
+
+
+# https://www.lisenet.com/2015/setting-up-a-load-balancing-haproxy-cluster-with-keepalived
+# https://docs.oracle.com/en/operating-systems/oracle-linux/6/admin/section_wkd_ys2_4r.html
+
+
+# Here’s a full HAProxy + IPVS (LVS) configuration example to implement Direct Server Return
+# (DSR) in Layer 4 TCP mode across 5 backend nodes, using ipvsadm.
+# This setup uses:
+
+# HAProxy as the director/load balancer
+# IPVS via ipvsadm to manage kernel-level load balancing
+
+# DSR (Direct Server Return): HAProxy or IPVS sends the request, but the backend replies directly
+# to the client, bypassing the load balancer on the return path.
+
+
+# 3. HAProxy Layer 4 (TCP) Example (optional if using IPVS alone)
+# This is optional if you rely fully on IPVS. If you want HAProxy for observability or health checks, here's an example.
+#
+# haproxy
+# frontend tcp_in
+#   bind 192.168.100.100:80
+#   mode tcp
+#   default_backend tcp_servers
+#
+# backend tcp_servers
+#   mode tcp
+#   balance source
+#   option tcp-check
+#   server srv1 192.168.100.11:80 check send-proxy
+#   server srv2 192.168.100.12:80 check send-proxy
+#   server srv3 192.168.100.13:80 check send-proxy
+#   server srv4 192.168.100.14:80 check send-proxy
+#   server srv5 192.168.100.15:80 check send-proxy
+#
+# Packet Flow Summary (DSR)
+# Client → VIP (192.168.100.100) — arrives at HAProxy/IPVS.
+#
+# Director forwards packet to one backend based on round-robin.
+#
+# Backend receives request, sees VIP as destination, and replies directly to client using its own routing table.
+#
+# HAProxy/IPVS not in return path — high throughput, lower latency.
+#
+# Benefits
+# Load balancer isn’t a bottleneck for return traffic.
+#
+# Great for high-performance TCP applications (like video, file serving, MinIO, etc.)
+
+

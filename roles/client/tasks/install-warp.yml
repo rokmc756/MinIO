@@ -29,7 +29,7 @@
 - name: Run Warp Benchmark from Workers
   shell: |
     {{ _warp.bin }} mixed {{ minio_warp_option }} --host {{ _ipaddr }}:{{ _minio.api_port }} --access-key {{ _minio.access_key }} \
-    --secret-key {{ _minio.secret_key }} --duration 20s --objects 10 --concurrent 1
+    --secret-key {{ _minio.secret_key }} --duration {{ _warp.duration }} --objects {{ _warp.objects }} --concurrent {{ _warp.concurrent }}
   register: run_warp_workers
   when: inventory_hostname in groups['workers']
 - debug: msg="{{ run_warp_workers }}"
@@ -39,7 +39,7 @@
 - name: Run Warp Benchmark from Non Workers
   shell: |
     {{ _warp.bin }} mixed {{ nginx_warp_option }} --host {{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }} --access-key {{ _minio.access_key }} \
-    --secret-key {{ _minio.secret_key }} --duration 20s --objects 10 --concurrent 1
+    --secret-key {{ _minio.secret_key }} --duration {{ _warp.duration }} --objects {{ _warp.objects }} --concurrent {{ _warp.concurrent }}
   register: run_warp_non_workers
   when: inventory_hostname not in groups['workers']
 - debug: msg="{{ run_warp_non_workers }}"

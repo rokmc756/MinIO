@@ -20,13 +20,15 @@ _haproxy:
       domain: jtest.pivotal.io
       frontend_port: 9000
       backend_port: 9000
-      balance: leastconn
+      balance: leastconn  # rr, source
+      lb_mode: lvs # tcp, http, source
     console:
       hostname: minio-console
       domain: jtest.pivotal.io
       frontend_port: 9001
       backend_port: 9001
-      balance: leastconn
+      balance: leastconn  # rr, source
+      lb_mode: lvs # tcp, http
 
 
 #_nginx:
@@ -62,8 +64,8 @@ _keepalived:
   router_id: "52"
   shared_iface: "{{ netdev1 }}"
   shared_ips:
-    - { fe: "minio-console" , ipaddr: "192.168.1.179/24" }
-    - { fe: "minio-service" , ipaddr: "192.168.1.180/24" }
+    - { fe: "minio-console" , ipaddr: "192.168.1.179/24", netmask: 255.255.255.255, netidx: 1, lvs_src_port: "9001", lvs_dest_port: "9001", lvs_lb_mode: rr }
+    - { fe: "minio-service" , ipaddr: "192.168.1.180/24", netmask: 255.255.255.255, netidx: 2, lvs_src_port: "9000", lvs_dest_port: "9000", lvs_lb_mode: rr }
   check_process: "haproxy"
   priority: "100"
   backup_priority: "50"
