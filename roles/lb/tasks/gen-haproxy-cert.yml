@@ -1,0 +1,71 @@
+# https://velog.io/@bsj1209/HAProxy%EC%97%90-SSL%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0-with-Linux-Server
+
+- name: Create SSL Directory
+  file:
+    path: "/etc/haproxy/certs"
+    state: directory
+    mode: 0755
+    owner: "root"
+    group: "root"
+  register: create_ssl_dir
+
+
+# certgen -host "localhost,{{ inventory_hostname }}.{{ _minio.domain }}"
+- name: Generate TLS Keys
+  shell: |
+    certgen -host "{{ item }}.{{ _minio.domain }}"
+    mv public.crt  {{ item }}-public.crt
+    mv private.key {{ item }}-private.key
+  register: gen_tls_keys
+  args:
+    executable: /bin/bash
+    chdir: "/etc/haproxy/certs"
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+  with_items:
+    - console
+    - api
+  when: inventory_hostname in groups['lb'][0]
+
+
+- name: Generate TLS Keys
+  shell: |
+    cat {{ item }}-private.key {{ item }}-public.crt >> minio-{{ item }}.jtest.pivotal.io.pem
+  register: gen_tls_keys
+  args:
+    executable: /bin/bash
+    chdir: "/etc/haproxy/certs"
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+  with_items:
+    - console
+    - api
+  when: inventory_hostname in groups['lb'][0]
+
+
+- name: Copy SSL Configuration with Rsync
+  shell: |
+    rsync -a --rsh='/usr/bin/sshpass -p changeme ssh -o StrictHostKeyChecking=no' \
+    root@{{ groups['lb'][0] }}.{{ _minio.domain }}:/etc/haproxy/certs/* /etc/haproxy/certs/
+  when: inventory_hostname not in groups['lb'][0]
+
+
+- name: Change Permission of SSL Key Files
+  file:
+    path: "/etc/haproxy/certs/{{ item }}"
+    state: file
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  with_items:
+    - "api-private.key"
+    - "api-public.crt"
+    - "console-private.key"
+    - "console-public.crt"
+    - "minio-console.jtest.pivotal.io.pem"
+    - "minio-api.jtest.pivotal.io.pem"
+
+# https://serversforhackers.com/c/using-ssl-certificates-with-haproxy
+# https://velog.io/@bsj1209/HAProxy%EC%97%90-SSL%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0-with-Linux-Server
+# https://support.ptc.com/help/thingworx/platform/r9/en/index.html#page/ThingWorx/Help/ThingWorxHighAvailability/configuringssltlsforhaproxy.html
+

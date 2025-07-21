@@ -10,16 +10,22 @@ global
 
 
 defaults
-	log global
-	mode tcp
-	option tcplog
-	option dontlognull
-	option redispatch
+        log global
+        mode http
 	retries 3
 	maxconn {{ _haproxy.defaults_max_connections }}
-	timeout connect 10s
-	timeout client 60s
-	timeout server 60s
+        option httplog
+        option dontlognull
+        timeout connect 10s
+        timeout client  60s
+        timeout server  60s
+        # errorfile 400 /etc/haproxy/errors/400.http
+        # errorfile 403 /etc/haproxy/errors/403.http
+        # errorfile 408 /etc/haproxy/errors/408.http
+        # errorfile 500 /etc/haproxy/errors/500.http
+        # errorfile 502 /etc/haproxy/errors/502.http
+        # errorfile 503 /etc/haproxy/errors/503.http
+        # errorfile 504 /etc/haproxy/errors/504.http
 
 
 listen  admin-stats
@@ -36,68 +42,50 @@ listen  admin-stats
 	stats auth {{ _haproxy.stats_user }}:{{ _haproxy.stats_pass }}
 
 
-frontend http-service
+frontend minio-https-console
     bind *:80
-    mode tcp
+    bind *:443 ssl crt /etc/haproxy/certs/minio-console.jtest.pivotal.io.pem
+    redirect scheme https code 301 if !{ ssl_fc }
+    mode http
     default_backend minio-console-backend
 
 
-frontend https-service
-    bind *:443
-    mode tcp
+frontend minio-https-api
+    bind *:80
+    bind *:443 ssl crt /etc/haproxy/certs/minio-api.jtest.pivotal.io.pem
+    redirect scheme https code 301 if !{ ssl_fc }
+    mode http
+    default_backend minio-api-backend
+
+
+frontend minio-api-service
+    bind *:{{ _haproxy.minio.api.frontend_port }} ssl crt /etc/haproxy/certs/minio-api.jtest.pivotal.io.pem
+    mode http
+    default_backend minio-api-backend
+
+
+frontend minio-console-service
+    bind *:{{ _haproxy.minio.console.frontend_port }} ssl crt /etc/haproxy/certs/minio-console.jtest.pivotal.io.pem
+    mode http
     default_backend minio-console-backend
 
 
-frontend minio-service
-    bind *:{{ _haproxy.minio.api.frontend_port }}
-    mode tcp
-    option tcplog
-    default_backend minio-servce-backend
-
-
-{% if _haproxy.minio.api.lb_mode == "lvs" %}
-backend minio-servce-backend
-  balance     {{ _haproxy.minio.api.balance }}
-  mode tcp
-{% for h in groups['workers'] %}
-  server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} check send-proxy
-{% endfor %}
-{% else %}
-backend minio-servce-backend
-    option httpchk GET /healthz
-    http-check expect status 200
-    mode {{ _haproxy.minio.api.lb_mode }}
-    option ssl-hello-chk
-    balance     {{ _haproxy.minio.api.balance }}
-{% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} check
-{% endfor %}
-{% endif %}
-
-
-frontend minio-console
-    bind *:{{ _haproxy.minio.console.frontend_port }}
-    mode tcp
-    option tcplog
-    default_backend minio-console-backend
-
-
-{% if _haproxy.minio.console.lb_mode == "lvs" %}
 backend minio-console-backend
-  balance     {{ _haproxy.minio.console.balance }}
-  mode tcp
-{% for h in groups['workers'] %}
-  server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} check send-proxy
-{% endfor %}
-{% else %}
-backend minio-console-backend
-    option httpchk GET /healthz
+    mode http
+    option httpchk GET /minio/health/live
     http-check expect status 200
-    mode {{ _haproxy.minio.console.lb_mode }}
-    option ssl-hello-chk
-    balance     {{ _haproxy.minio.console.balance }}
+    balance {{ _haproxy.minio.console.balance }}
 {% for h in groups['workers'] %}
-    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.console.backend_port }} check
+    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.console.backend_port }} ssl verify none
 {% endfor %}
-{% endif %}
+
+
+backend minio-api-backend
+    mode http
+    option httpchk GET /minio/health/live
+    http-check expect status 200
+    balance {{ _haproxy.minio.api.balance }}
+{% for h in groups['workers'] %}
+    server {{ h }} {{ hostvars[h][_netdev]['ipv4']['address'] }}:{{ _haproxy.minio.api.backend_port }} ssl verify none
+{% endfor %}
 

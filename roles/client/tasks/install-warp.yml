@@ -38,7 +38,7 @@
 
 - name: Run Warp Benchmark from Non Workers
   shell: |
-    {{ _warp.bin }} mixed {{ nginx_warp_option }} --host {{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }} --access-key {{ _minio.access_key }} \
+    {{ _warp.bin }} mixed {{ nginx_warp_option }} --host {{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }}:{{ _minio.api_port }} --access-key {{ _minio.access_key }} \
     --secret-key {{ _minio.secret_key }} --duration {{ _warp.duration }} --objects {{ _warp.objects }} --concurrent {{ _warp.concurrent }}
   register: run_warp_non_workers
   when: inventory_hostname not in groups['workers']

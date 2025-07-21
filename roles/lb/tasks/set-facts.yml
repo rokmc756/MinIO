@@ -44,6 +44,8 @@
 - name: Define Fact of Network Address
   set_fact:
     minio_network_range: "{{ hostvars[inventory_hostname][_netdev]['ipv4']['network'] }}/{{ ( hostvars[inventory_hostname][_netdev]['ipv4']['address'] + '/' + hostvars[inventory_hostname][_netdev]['ipv4']['netmask'] ) | ansible.utils.ipaddr('prefix') }}"
+    certgen_version: "{{ _certgen.major_version }}.{{ _certgen.minor_version }}.{{ _certgen.patch_version }}"
+    certgen_file_name: "certgen-{{ _certgen.os }}-{{ _certgen.arch }}"
 
 
 - name: Define Fact of Specific IP Address Range

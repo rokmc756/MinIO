@@ -42,13 +42,25 @@
 - name: Configure Linux Virtual Servers
   import_tasks: config-lvs.yml
   tags: config
-  when: ( lvs is defined and lvs == true ) or ( lb_all is defined and lb_all == true )
+  when: ( lvs is defined and lvs == true )
+
+
+- name: Configure Direct Server Return
+  import_tasks: config-iptables-dsr.yml
+  tags: config
+  when: ( dsr is defined and dsr == true )
+
+
+- name: Remove Direct Server Return
+  import_tasks: remove-iptables-dsr.yml
+  tags: config
+  when: ( dsr is defined and dsr == true )
 
 
 - name: Remove Linux Virtual Servers
   import_tasks: remove-lvs.yml
   tags: remove
-  when: ( lvs is defined and lvs == true ) or ( lb_all is defined and lb_all == true )
+  when: ( lvs is defined and lvs == true )
 
 
 - name: Uninstall NGINX

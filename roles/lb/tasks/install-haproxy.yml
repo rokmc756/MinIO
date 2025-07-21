@@ -3,6 +3,19 @@
 #  import_tasks: config-dsr-vip.yml
 #  when: _haproxy.minio.api.lb_mode == "lvs" and inventory_hostname in groups['workers']
 
+#- name: Configure Virtual IP for Direct Service Returns
+#  import_tasks: config-iptables-dsr.yml
+
+
+- name: Download Certificate Generator
+  import_tasks: download-certgen.yml
+  when: inventory_hostname in groups['lb']
+
+
+- name: Generate HAProxy SSL Certificates
+  import_tasks: gen-haproxy-cert.yml
+  when: inventory_hostname in groups['lb']
+
 
 - name: Install HAProxy Packages
   yum: name={{item}} state=present
@@ -10,12 +23,6 @@
    - bind-utils
    - haproxy
   when: inventory_hostname in groups['lb']
-
-
-#- name: Set SELinux Context
-#  shell: setsebool -P haproxy_connect_any=1
-#  ignore_errors: yes
-#  when: inventory_hostname in groups['lb']
 
 
 - name: Copy haproxy.cfg
@@ -52,6 +59,7 @@
   notify: Restart Keepalived
   when: inventory_hostname in groups['lb']
 
+
 # To Debug Further
 # Try using curl from the HAProxy machine:
 # $ curl -v http://192.168.2.171:9001/minio/health/ready
@@ -59,5 +67,10 @@
 # or for HTTPS:
 # bash
 # $ curl -vk https://192.168.2.171:9001/minio/health/ready
+
+#- name: Set SELinux Context
+#  shell: setsebool -P haproxy_connect_any=1
+#  ignore_errors: yes
+#  when: inventory_hostname in groups['lb']
 
 

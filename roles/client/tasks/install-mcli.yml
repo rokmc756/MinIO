@@ -31,6 +31,9 @@
   shell: |
     {{ _mcli.bin }} alias set myminio {{ minio_endpoint_proto }}://{{ _mcli.config_opts.hosts.minio.url }} {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
   register: set_minio_svc_alias
+  until: set_minio_svc_alias is succeeded
+  retries: 5
+  delay: 5
   args:
     creates: "{{ _mcli.config }}"
   when: inventory_hostname in groups['workers']
@@ -42,6 +45,9 @@
   shell: |
     {{ _mcli.bin }} alias set myminio {{ nginx_endpoint_proto }}://{{ _nginx.minio.api.hostname }}.{{ _nginx.minio.api.domain }} {{ _minio.access_key }} {{ _minio.secret_key }} --insecure
   register: set_minio_svc_alias
+  until: set_minio_svc_alias is succeeded
+  retries: 5
+  delay: 5
   args:
     creates: "{{ _mcli.config }}"
   when: inventory_hostname not in groups['workers']
