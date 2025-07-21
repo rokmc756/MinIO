@@ -44,6 +44,6 @@ _warp:
   patch_version: 6
   bin: /usr/bin/warp
   duration: "10s"
-  objects: 10
-  concurrent: 1
+  objects: 100
+  concurrent: 5
 

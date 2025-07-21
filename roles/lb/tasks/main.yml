@@ -39,28 +39,16 @@
   when: (( vip is defined and vip == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
-- name: Configure Linux Virtual Servers
-  import_tasks: config-lvs.yml
-  tags: config
-  when: ( lvs is defined and lvs == true )
-
-
-- name: Configure Direct Server Return
-  import_tasks: config-iptables-dsr.yml
+- name: Configure Direct Routing
+  import_tasks: config-direct-routing.yml
   tags: config
   when: ( dsr is defined and dsr == true )
 
 
 - name: Remove Direct Server Return
-  import_tasks: remove-iptables-dsr.yml
-  tags: config
-  when: ( dsr is defined and dsr == true )
-
-
-- name: Remove Linux Virtual Servers
-  import_tasks: remove-lvs.yml
+  import_tasks: remove-direct-routing.yml
   tags: remove
-  when: ( lvs is defined and lvs == true )
+  when: ( dsr is defined and dsr == true )
 
 
 - name: Uninstall NGINX
