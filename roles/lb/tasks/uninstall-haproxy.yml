@@ -42,7 +42,3 @@
   when: inventory_hostname in groups['lb']
 
 
-- name: Remove Virtual IP for Direct Service Returns
-  import_tasks: remove-dsr-vip.yml
-  when: _haproxy.minio.api.lb_mode == "gateway" and inventory_hostname in groups['workers']
-

@@ -7,22 +7,22 @@
   with_items:
     - { key: "net.ipv4.ip_forward",            value: "1" } # In order for the Keepalived service to forward network packets properly to the real servers, each router node must have IP forwarding turned on in the kernel
     - { key: "net.ipv4.ip_nonlocal_bind",      value: "1" } # Load balancing in HAProxy also requires the ability to bind to an IP address that is nonlocal, meaning that it is not assigned to a device on the local system. This allows a running load balancer instance to bind to a an IP that is not local for failover.
-  when: inventory_hostname in groups['lb']
   notify: Reload Sysctl
+  when: inventory_hostname in groups['lb']
 
 
-#- name: Apply Kernel Parameters for Direct Routing Virutal IP Address
-#  ansible.posix.sysctl:
-#    name: "{{ item.key }}"
-#    value: "{{ item.value }}"
-#    state: present
-#  with_items:
-#    - { key: "net.ipv4.conf.lo.arp_ignore" ,   value: "1" }
-#    - { key: "net.ipv4.conf.lo.arp_announce",  value: "2" }
-#    - { key: "net.ipv4.conf.all.arp_ignore" ,  value: "1" }
-#    - { key: "net.ipv4.conf.all.arp_announce", value: "2" }
-#  when: inventory_hostname in groups['workers']
-#  notify: Reload Sysctl
+- name: Apply Kernel Parameters for Direct Routing Virutal IP Address
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+    - { key: "net.ipv4.conf.lo.arp_ignore" ,   value: "1" }
+    - { key: "net.ipv4.conf.lo.arp_announce",  value: "2" }
+    - { key: "net.ipv4.conf.all.arp_ignore" ,  value: "1" }
+    - { key: "net.ipv4.conf.all.arp_announce", value: "2" }
+  notify: Reload Sysctl
+  when: inventory_hostname in groups['workers']
 
 
 - name: Configure Direct Routing with IPtables
@@ -35,11 +35,7 @@
   when: arptables is defined and arptables == true
 
 
-- name: Create ARP table entries for Virtaul IP Addresses on Real Server
-  shell: |
-    firewall-cmd --permanent --direct --add-rule ipv4 nat PREROUTING 0 \
-    -d  {{ item.ipaddr.split('/')[:-1] | join('/') }} -p tcp|udp -m tcp|udp --dport port -j REDIRECT
-  register: create_arp_table_entries
-  with_items: "{{ _keepalived.shared_ips }}"
-  when: ( firewalld is defined and firewalld == true ) and inventory_hostname in groups['workers']
+- name: Configure Direct Routing with Firewalld
+  import_tasks: config-firewalld-dsr.yml
+  when: firewalld is defined and firewalld == true
 

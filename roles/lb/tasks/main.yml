@@ -69,12 +69,6 @@
   when: (( ha is defined and ha == true ) or ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
 
 
-- name: Remove Direct Routing
-  import_tasks: remove-dsr-vip.yml
-  tags: remove
-  when: ( vip is defined and vip == true ) and inventory_hostname in groups['workers']
-
-
 - name: Start and Enable Firewalld and SELinux
   import_tasks: enable-security.yml
   tags: enable, start, uninstall, remove
@@ -91,16 +85,4 @@
   import_tasks: upgrade-haproxy.yml
   tags: upgrade
   when: (( ha is defined and lb == true ) ha ( lb_all is defined and lb_all == true )) and inventory_hostname in groups['lb']
-
-
-#- name: Setup DNS Zone and Record
-#  import_tasks: dns/setup-freeipa.yml
-#  tags: setup, create, install
-#  when: ( dns is defined and dns == true ) and inventory_hostname in groups['dns']
-
-
-#- name: Remove DNS Zone and Record
-#  import_tasks: dns/remove-freeipa.yml
-#  tags: remove, delete, uninstall
-#  when: ( dns is defined and dns == true ) and inventory_hostname in groups['dns']
 

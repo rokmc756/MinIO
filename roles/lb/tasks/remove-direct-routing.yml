@@ -18,22 +18,23 @@
     firewall-cmd --complete-reload
     firewall-cmd --permanent --reset
     firewall-cmd --reload
+    systemctl stop firewalld
   tags: remove
   when: firewalld is defined and firewalld == true
 
 
-#- name: Remove Kernel Parameters for Direct Routing Virutal IP Address
-#  ansible.posix.sysctl:
-#    name: "{{ item.key }}"
-#    value: "{{ item.value }}"
-#    state: absent
-#  with_items:
-#    - { key: "net.ipv4.conf.lo.arp_ignore" ,   value: "0" }
-#    - { key: "net.ipv4.conf.lo.arp_announce",  value: "0" }
-#    - { key: "net.ipv4.conf.all.arp_ignore" ,  value: "0" }
-#    - { key: "net.ipv4.conf.all.arp_announce", value: "0" }
-#  when: inventory_hostname in groups['workers']
-#  notify: Reload Sysctl
+- name: Remove Kernel Parameters for Direct Routing Virutal IP Address
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: absent
+  with_items:
+    - { key: "net.ipv4.conf.lo.arp_ignore" ,   value: "0" }
+    - { key: "net.ipv4.conf.lo.arp_announce",  value: "0" }
+    - { key: "net.ipv4.conf.all.arp_ignore" ,  value: "0" }
+    - { key: "net.ipv4.conf.all.arp_announce", value: "0" }
+  when: inventory_hostname in groups['workers']
+  notify: Reload Sysctl
 
 
 - name: Remove Kernel Parameters for Direct Routing Virutal IP Address

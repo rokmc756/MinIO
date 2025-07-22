@@ -1,9 +1,41 @@
 ---
+- name: Check Firewalld Config
+  shell: |
+    firewall-offline-cmd --check-config
+  register: check_firewalld_config
+
+
+- name: Restart Firewalld
+  shell: |
+    systemctl restart firewalld
+  register: restart_firewalld
+
+
+- name: Create ARP table entries for Virtaul IP Addresses on Real Server
+  shell: |
+    firewall-cmd --zone=public --add-port={{ item.dest_port }}/tcp --permanent
+  register: create_arp_table_entries
+  with_items: "{{ _keepalived.shared_ips }}"
+
+
+- name: Process packets destined for VIP and Port by Real Server
+  shell: |
+    firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 0 -p vrrp -m comment --comment "VRRP" -j ACCEPT
+  register: process_package
+  when: inventory_hostname in groups['lb']
+
+
 - name: Create ARP table entries for Virtaul IP Addresses on Real Server
   shell: |
     firewall-cmd --permanent --direct --add-rule ipv4 nat PREROUTING 0 \
-    -d  {{ item.ipaddr.split('/')[:-1] | join('/') }} -p tcp|udp -m tcp|udp --dport port -j REDIRECT
+    -p tcp -d {{ item.ipaddr.split('/')[:-1] | join('/') }} --dport {{ item.dest_port }} -j REDIRECT
   register: create_arp_table_entries
   with_items: "{{ _keepalived.shared_ips }}"
   when: inventory_hostname in groups['workers']
+
+
+- name: Reload Firewalld
+  shell: |
+    firewall-cmd --reload
+  register: reload_firewalld
 

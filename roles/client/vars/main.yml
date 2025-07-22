@@ -43,7 +43,7 @@ _warp:
   minor_version: 1
   patch_version: 6
   bin: /usr/bin/warp
-  duration: "10s"
+  duration: "30s"
   objects: 100
-  concurrent: 5
+  concurrent: 3
 

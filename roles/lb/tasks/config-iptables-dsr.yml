@@ -1,4 +1,14 @@
 ---
+# https://www.lisenet.com/2015/setting-up-a-load-balancing-haproxy-cluster-with-keepalived/
+- name: Assign Firewall Marks
+  shell: |
+    iptables -t mangle -A PREROUTING -p tcp -d {{ item.ipaddr.split('/')[:-1] | join('/') }}/32 \
+    --dport {{ item.dest_port }} -j MARK --set-mark {{ item.dest_port }}
+  register: assigne_firewall_marks
+  with_items: "{{ _keepalived.shared_ips }}"
+  when: inventory_hostname in groups['lb']
+
+
 - name: Process packets destined for VIP and Port by Real Server
   shell: |
     iptables -I INPUT -p vrrp -m comment --comment "VRRP" -j ACCEPT
@@ -7,13 +17,27 @@
   when: inventory_hostname in groups['lb']
 
 
+#- name: Process packets destined for VIP and Port by Real Server
+#  shell: |
+#    iptables -t nat -A PREROUTING -p tcp -d {{ item.ipaddr.split('/')[:-1] | join('/') }} --dport {{ item.dest_port }} -j REDIRECT
+#  register: process_package
+#  with_items: "{{ _keepalived.shared_ips }}"
+#  when: inventory_hostname in groups['workers']
+
+
 - name: Process packets destined for VIP and Port by Real Server
   shell: |
-    iptables -t nat -A PREROUTING -p tcp -d {{ item.ipaddr.split('/')[:-1] | join('/') }} \
-    -m multiport --dport 9000,9001 -j REDIRECT
+    iptables -t nat -A PREROUTING -d {{ item.ipaddr.split('/')[:-1] | join('/') }} -p tcp \
+    --dport {{ item.dest_port }} -j REDIRECT --to-ports {{ item.src_port }}
   register: process_package
   with_items: "{{ _keepalived.shared_ips }}"
-  when: inventory_hostname in groups['lb']
-# iptables -t nat -A PREROUTING -p tcp -d  {{ item.ipaddr.split('/')[:-1] | join('/') }} \
-#  --dport {{ item.src_port }} -j REDIRECT
+  when: inventory_hostname in groups['workers']
+
+
+- name: Process packets destined for VIP and Port by Real Server
+  shell: |
+    iptables -t nat -A POSTROUTING -s {{ item.ipaddr.split('/')[:-1] | join('/') }} -j MASQUERADE
+  register: process_package
+  with_items: "{{ _keepalived.shared_ips }}"
+  when: inventory_hostname in groups['workers']
 
